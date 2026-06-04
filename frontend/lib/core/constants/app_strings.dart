@@ -98,6 +98,29 @@ class AppStrings {
   static const String changeImage = 'تغيير الصورة';
   static const String playerInfo = 'معلومات اللاعب';
 
+  // Subscriptions
+  static const String subscription = 'الاشتراك';
+  static const String addSubscription = 'اشتراك جديد';
+  static const String renewSubscription = 'تجديد الاشتراك';
+  static const String subscriptionHistory = 'سجل الاشتراكات';
+  static const String subscriptionAmount = 'مبلغ الاشتراك';
+  static const String subscriptionType = 'نوع الاشتراك';
+  static const String newSubscription = 'اشتراك جديد';
+  static const String renewal = 'تجديد';
+  static const String startDate = 'تاريخ البداية';
+  static const String endDate = 'تاريخ الانتهاء';
+  static const String subscriptionAdded = 'تم إضافة الاشتراك بنجاح';
+  static const String subscriptionRenewed = 'تم تجديد الاشتراك بنجاح';
+  static const String subscriptionDeleted = 'تم حذف الاشتراك بنجاح';
+  static const String deleteSubscriptionConfirm =
+      'هل أنت متأكد من حذف هذا الاشتراك؟';
+  static const String noSubscriptions = 'لا يوجد اشتراكات';
+  static const String activeSubscription = 'نشط';
+  static const String expiredSubscription = 'منتهي';
+  static const String allSubscriptions = 'الكل';
+  static const String totalRevenue = 'إجمالي الإيرادات';
+  static const String monthlyRevenue = 'إيرادات الشهر';
+
   // Navigation
   static const String home = 'الرئيسية';
   static const String players = 'اللاعبون';

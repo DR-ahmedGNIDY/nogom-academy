@@ -4,6 +4,9 @@ import 'package:basketball_academy/features/auth/presentation/providers/auth_pro
 import 'package:basketball_academy/features/player/domain/entities/player_entity.dart';
 import 'package:basketball_academy/features/player/presentation/providers/player_provider.dart';
 import 'package:basketball_academy/features/player/presentation/screens/edit_player_screen.dart';
+import 'package:basketball_academy/features/subscription/presentation/screens/add_subscription_screen.dart';
+import 'package:basketball_academy/features/subscription/presentation/screens/player_subscription_history_screen.dart';
+import 'package:basketball_academy/features/subscription/presentation/screens/renew_subscription_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -102,6 +105,88 @@ class _PlayerDetailContent extends ConsumerWidget {
     required this.player,
     required this.academyId,
   });
+
+  Widget _buildSubscriptionActionsCard(
+      BuildContext context, PlayerEntity player, bool canEdit) {
+    if (!canEdit) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+    return Card(
+      margin: EdgeInsets.symmetric(horizontal: 0.w),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      elevation: 1,
+      child: Padding(
+        padding: EdgeInsets.all(16.r),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              AppStrings.subscriptions,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: AppColors.grey800,
+              ),
+            ),
+            Gap(12.h),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => PlayerSubscriptionHistoryScreen(
+                          playerId: player.id,
+                          academyId: academyId,
+                          playerName: player.fullName,
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.history),
+                    label: const Text('سجل الاشتراكات'),
+                  ),
+                ),
+                Gap(8.w),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => AddSubscriptionScreen(
+                          playerId: player.id,
+                          academyId: academyId,
+                          playerName: player.fullName,
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.add_card),
+                    label: const Text('اشتراك جديد'),
+                  ),
+                ),
+              ],
+            ),
+            Gap(8.h),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.secondary,
+                foregroundColor: AppColors.white,
+              ),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => RenewSubscriptionScreen(
+                    playerId: player.id,
+                    academyId: academyId,
+                    playerName: player.fullName,
+                  ),
+                ),
+              ),
+              icon: const Icon(Icons.refresh),
+              label: const Text('تجديد الاشتراك'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
@@ -388,6 +473,10 @@ class _PlayerDetailContent extends ConsumerWidget {
                       ),
                     ),
                   ],
+
+                  Gap(16.h),
+                  // Subscription Actions Card
+                  _buildSubscriptionActionsCard(context, player, canEdit),
 
                   Gap(80.h),
                 ],

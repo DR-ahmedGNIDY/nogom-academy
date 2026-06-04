@@ -1,5 +1,15 @@
 import 'package:basketball_academy/core/network/api_client.dart';
 import 'package:basketball_academy/core/network/token_manager.dart';
+import 'package:basketball_academy/features/subscription/data/datasources/subscription_remote_datasource.dart';
+import 'package:basketball_academy/features/subscription/data/repositories/subscription_repository_impl.dart';
+import 'package:basketball_academy/features/subscription/domain/repositories/subscription_repository.dart';
+import 'package:basketball_academy/features/subscription/domain/usecases/create_subscription_usecase.dart';
+import 'package:basketball_academy/features/subscription/domain/usecases/delete_subscription_usecase.dart';
+import 'package:basketball_academy/features/subscription/domain/usecases/get_revenue_summary_usecase.dart';
+import 'package:basketball_academy/features/subscription/domain/usecases/get_subscription_usecase.dart';
+import 'package:basketball_academy/features/subscription/domain/usecases/get_subscriptions_by_academy_usecase.dart';
+import 'package:basketball_academy/features/subscription/domain/usecases/get_subscriptions_by_player_usecase.dart';
+import 'package:basketball_academy/features/subscription/domain/usecases/update_subscription_notes_usecase.dart';
 import 'package:basketball_academy/features/academy/data/datasources/academy_remote_datasource.dart';
 import 'package:basketball_academy/features/academy/data/repositories/academy_repository_impl.dart';
 import 'package:basketball_academy/features/academy/domain/repositories/academy_repository.dart';
@@ -151,5 +161,35 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<DeletePlayerUsecase>(
     () => DeletePlayerUsecase(sl<PlayerRepository>()),
+  );
+
+  // Subscription
+  sl.registerLazySingleton<SubscriptionRemoteDatasource>(
+    () => SubscriptionRemoteDatasourceImpl(sl<ApiClient>()),
+  );
+  sl.registerLazySingleton<SubscriptionRepository>(
+    () => SubscriptionRepositoryImpl(
+        remoteDatasource: sl<SubscriptionRemoteDatasource>()),
+  );
+  sl.registerLazySingleton<GetSubscriptionsByPlayerUsecase>(
+    () => GetSubscriptionsByPlayerUsecase(sl<SubscriptionRepository>()),
+  );
+  sl.registerLazySingleton<GetSubscriptionsByAcademyUsecase>(
+    () => GetSubscriptionsByAcademyUsecase(sl<SubscriptionRepository>()),
+  );
+  sl.registerLazySingleton<GetSubscriptionUsecase>(
+    () => GetSubscriptionUsecase(sl<SubscriptionRepository>()),
+  );
+  sl.registerLazySingleton<CreateSubscriptionUsecase>(
+    () => CreateSubscriptionUsecase(sl<SubscriptionRepository>()),
+  );
+  sl.registerLazySingleton<UpdateSubscriptionNotesUsecase>(
+    () => UpdateSubscriptionNotesUsecase(sl<SubscriptionRepository>()),
+  );
+  sl.registerLazySingleton<DeleteSubscriptionUsecase>(
+    () => DeleteSubscriptionUsecase(sl<SubscriptionRepository>()),
+  );
+  sl.registerLazySingleton<GetRevenueSummaryUsecase>(
+    () => GetRevenueSummaryUsecase(sl<SubscriptionRepository>()),
   );
 }
