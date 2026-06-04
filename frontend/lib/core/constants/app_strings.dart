@@ -34,9 +34,39 @@ class AppStrings {
   static const String academy = 'الأكاديمية';
   static const String academies = 'الأكاديميات';
   static const String addAcademy = 'إضافة أكاديمية';
+  static const String editAcademy = 'تعديل الأكاديمية';
   static const String academyName = 'اسم الأكاديمية';
   static const String academyPhone = 'هاتف الأكاديمية';
   static const String academyAddress = 'عنوان الأكاديمية';
+  static const String academyDetails = 'تفاصيل الأكاديمية';
+  static const String academyAdded = 'تم إضافة الأكاديمية بنجاح';
+  static const String academyUpdated = 'تم تحديث الأكاديمية بنجاح';
+  static const String academyDeleted = 'تم حذف الأكاديمية بنجاح';
+  static const String deleteAcademyConfirm = 'هل أنت متأكد من حذف هذه الأكاديمية؟';
+  static const String manageUsers = 'إدارة المستخدمين';
+
+  // Users
+  static const String users = 'المستخدمون';
+  static const String addUser = 'إضافة مستخدم';
+  static const String editUser = 'تعديل المستخدم';
+  static const String fullName = 'الاسم الكامل';
+  static const String userEmail = 'البريد الإلكتروني';
+  static const String userPassword = 'كلمة المرور';
+  static const String userRole = 'الصلاحية';
+  static const String superAdmin = 'مدير النظام';
+  static const String academyAdmin = 'مدير الأكاديمية';
+  static const String active = 'نشط';
+  static const String inactive = 'معطّل';
+  static const String activateUser = 'تفعيل';
+  static const String deactivateUser = 'تعطيل';
+  static const String userAdded = 'تم إضافة المستخدم بنجاح';
+  static const String userUpdated = 'تم تحديث المستخدم بنجاح';
+  static const String userDeleted = 'تم حذف المستخدم بنجاح';
+  static const String userActivated = 'تم تفعيل المستخدم بنجاح';
+  static const String userDeactivated = 'تم تعطيل المستخدم بنجاح';
+  static const String deleteUserConfirm = 'هل أنت متأكد من حذف هذا المستخدم؟';
+  static const String noUsers = 'لا يوجد مستخدمون';
+  static const String academyUsers = 'مستخدمو الأكاديمية';
 
   // Navigation
   static const String home = 'الرئيسية';

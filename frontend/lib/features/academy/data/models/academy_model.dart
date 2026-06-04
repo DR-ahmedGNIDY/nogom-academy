@@ -14,6 +14,8 @@ class AcademyModel {
   final String address;
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
+  @JsonKey(name: 'updated_at')
+  final DateTime? updatedAt;
   @JsonKey(name: 'player_count')
   final int? playerCount;
 
@@ -24,6 +26,7 @@ class AcademyModel {
     required this.phone,
     required this.address,
     required this.createdAt,
+    this.updatedAt,
     this.playerCount,
   });
 
@@ -39,6 +42,7 @@ class AcademyModel {
         phone: phone,
         address: address,
         createdAt: createdAt,
+        updatedAt: updatedAt,
         playerCount: playerCount,
       );
 }

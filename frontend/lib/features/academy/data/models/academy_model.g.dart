@@ -13,6 +13,9 @@ AcademyModel _$AcademyModelFromJson(Map<String, dynamic> json) => AcademyModel(
       phone: json['phone'] as String,
       address: json['address'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String),
       playerCount: (json['player_count'] as num?)?.toInt(),
     );
 
@@ -24,5 +27,6 @@ Map<String, dynamic> _$AcademyModelToJson(AcademyModel instance) =>
       'phone': instance.phone,
       'address': instance.address,
       'created_at': instance.createdAt.toIso8601String(),
+      'updated_at': instance.updatedAt?.toIso8601String(),
       'player_count': instance.playerCount,
     };

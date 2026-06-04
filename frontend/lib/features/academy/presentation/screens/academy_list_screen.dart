@@ -2,6 +2,7 @@ import 'package:basketball_academy/core/constants/app_colors.dart';
 import 'package:basketball_academy/core/constants/app_strings.dart';
 import 'package:basketball_academy/features/academy/domain/entities/academy_entity.dart';
 import 'package:basketball_academy/features/academy/presentation/providers/academy_provider.dart';
+import 'package:basketball_academy/features/academy/presentation/screens/add_academy_screen.dart';
 import 'package:basketball_academy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:basketball_academy/core/router/app_router.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +69,11 @@ class AcademyListScreen extends ConsumerWidget {
       floatingActionButton: isSuperAdmin
           ? FloatingActionButton.extended(
               onPressed: () {
-                // Phase 2: Add academy
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AddAcademyScreen(),
+                  ),
+                );
               },
               icon: const Icon(Icons.add),
               label: const Text(AppStrings.addAcademy),

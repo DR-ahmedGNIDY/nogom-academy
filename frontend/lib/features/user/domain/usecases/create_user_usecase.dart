@@ -1,0 +1,37 @@
+import 'package:basketball_academy/core/errors/failures.dart';
+import 'package:basketball_academy/core/utils/usecase.dart';
+import 'package:basketball_academy/features/user/domain/entities/user_management_entity.dart';
+import 'package:basketball_academy/features/user/domain/repositories/user_repository.dart';
+import 'package:dartz/dartz.dart';
+
+class CreateUserParams {
+  final String name;
+  final String email;
+  final String password;
+  final String academyId;
+
+  const CreateUserParams({
+    required this.name,
+    required this.email,
+    required this.password,
+    required this.academyId,
+  });
+}
+
+class CreateUserUsecase
+    extends UseCase<UserManagementEntity, CreateUserParams> {
+  final UserRepository _repository;
+
+  CreateUserUsecase(this._repository);
+
+  @override
+  Future<Either<Failure, UserManagementEntity>> call(
+      CreateUserParams params) {
+    return _repository.createUser(
+      name: params.name,
+      email: params.email,
+      password: params.password,
+      academyId: params.academyId,
+    );
+  }
+}

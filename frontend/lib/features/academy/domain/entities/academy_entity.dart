@@ -7,6 +7,7 @@ class AcademyEntity extends Equatable {
   final String phone;
   final String address;
   final DateTime createdAt;
+  final DateTime? updatedAt;
   final int? playerCount;
 
   const AcademyEntity({
@@ -16,9 +17,10 @@ class AcademyEntity extends Equatable {
     required this.phone,
     required this.address,
     required this.createdAt,
+    this.updatedAt,
     this.playerCount,
   });
 
   @override
-  List<Object?> get props => [id, name, logoUrl, phone, address, createdAt, playerCount];
+  List<Object?> get props => [id, name, logoUrl, phone, address, createdAt, updatedAt, playerCount];
 }

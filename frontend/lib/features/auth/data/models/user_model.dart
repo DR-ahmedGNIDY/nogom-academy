@@ -14,6 +14,8 @@ class UserModel {
   final String? academyId;
   @JsonKey(name: 'academy_name')
   final String? academyName;
+  @JsonKey(name: 'isActive', defaultValue: true)
+  final bool isActive;
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
 
@@ -24,6 +26,7 @@ class UserModel {
     required this.role,
     this.academyId,
     this.academyName,
+    this.isActive = true,
     required this.createdAt,
   });
 
@@ -40,6 +43,7 @@ class UserModel {
       role: role == 'super_admin' ? UserRole.superAdmin : UserRole.academyAdmin,
       academyId: academyId,
       academyName: academyName,
+      isActive: isActive,
       createdAt: createdAt,
     );
   }

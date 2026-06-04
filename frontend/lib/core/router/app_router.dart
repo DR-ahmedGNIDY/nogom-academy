@@ -3,6 +3,7 @@ import 'package:basketball_academy/features/academy/presentation/screens/academy
 import 'package:basketball_academy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:basketball_academy/features/auth/presentation/screens/login_screen.dart';
 import 'package:basketball_academy/features/splash/presentation/screens/splash_screen.dart';
+import 'package:basketball_academy/features/user/presentation/screens/users_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String academyList = '/academies';
   static const String academyDetail = '/academies/:id';
+  static const String academyUsers = '/academies/:id/users';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -53,6 +55,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return AcademyDetailScreen(academyId: id);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.academyUsers,
+        builder: (context, state) {
+          final academyId = state.pathParameters['id']!;
+          return UsersListScreen(academyId: academyId);
         },
       ),
     ],
