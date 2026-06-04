@@ -42,6 +42,20 @@ abstract class EvaluationRemoteDatasource {
   });
 
   Future<void> deleteEvaluation(String id);
+
+  Future<
+      ({
+        List<EvaluationModel> evaluations,
+        int total,
+        int page,
+        int totalPages,
+      })> getEvaluationsByAcademy({
+    required String academyId,
+    DateTime? startDate,
+    DateTime? endDate,
+    int page = 1,
+    int limit = 100,
+  });
 }
 
 class EvaluationRemoteDatasourceImpl implements EvaluationRemoteDatasource {
@@ -157,5 +171,42 @@ class EvaluationRemoteDatasourceImpl implements EvaluationRemoteDatasource {
   @override
   Future<void> deleteEvaluation(String id) async {
     await _apiClient.delete('/evaluations/$id');
+  }
+
+  @override
+  Future<
+      ({
+        List<EvaluationModel> evaluations,
+        int total,
+        int page,
+        int totalPages,
+      })> getEvaluationsByAcademy({
+    required String academyId,
+    DateTime? startDate,
+    DateTime? endDate,
+    int page = 1,
+    int limit = 100,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (startDate != null) 'startDate': startDate.toIso8601String(),
+      if (endDate != null) 'endDate': endDate.toIso8601String(),
+    };
+    final response = await _apiClient.get(
+      '/evaluations/academy/$academyId',
+      queryParameters: queryParams,
+    );
+    final body = response.data as Map<String, dynamic>;
+    final list = (body['data'] as List<dynamic>)
+        .map((e) => EvaluationModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+    final meta = body['meta'] as Map<String, dynamic>;
+    return (
+      evaluations: list,
+      total: (meta['total'] as num).toInt(),
+      page: (meta['page'] as num).toInt(),
+      totalPages: (meta['totalPages'] as num).toInt(),
+    );
   }
 }

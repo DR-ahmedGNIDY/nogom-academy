@@ -156,6 +156,22 @@ class AppStrings {
   static const String writeMessageHere = 'اكتب رسالتك هنا...';
   static const String whatsappNotInstalled = 'تطبيق واتساب غير مثبت على الجهاز';
 
+  // Reports
+  static const String generatePdf = 'إنشاء PDF';
+  static const String previewReport = 'معاينة التقرير';
+  static const String shareReport = 'مشاركة PDF';
+  static const String playersReport = 'تقرير اللاعبين';
+  static const String subscriptionsReport = 'تقرير الاشتراكات';
+  static const String revenueReport = 'تقرير الإيرادات';
+  static const String evaluationsReport = 'تقرير التقييمات';
+  static const String reportPeriod = 'الفترة الزمنية';
+  static const String thisMonth = 'هذا الشهر';
+  static const String last3Months = 'آخر 3 أشهر';
+  static const String thisYear = 'هذه السنة';
+  static const String allTime = 'كل الوقت';
+  static const String generatingReport = 'جارٍ إنشاء التقرير...';
+  static const String reportError = 'حدث خطأ أثناء إنشاء التقرير';
+
   // Navigation
   static const String home = 'الرئيسية';
   static const String players = 'اللاعبون';

@@ -175,6 +175,44 @@ const deleteEvaluation = async (req, res, next) => {
   return sendSuccess(res, { message: 'تم حذف التقييم بنجاح' });
 };
 
+// ─── GET /academy/:academyId ──────────────────────────────────────────────────
+const getEvaluationsByAcademy = async (req, res, next) => {
+  const academyId = req.user.role === 'academy_admin'
+    ? req.user.academyId
+    : req.params.academyId;
+
+  if (!academyId) return next(new AppError('معرّف الأكاديمية مطلوب', 400));
+
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(200, Math.max(1, parseInt(req.query.limit) || 50));
+  const skip = (page - 1) * limit;
+
+  // Optional date range filters
+  const dateFilter = {};
+  if (req.query.startDate) dateFilter.$gte = new Date(req.query.startDate);
+  if (req.query.endDate) dateFilter.$lte = new Date(req.query.endDate);
+
+  const query = { academyId };
+  if (Object.keys(dateFilter).length) query.created_at = dateFilter;
+
+  const [evaluations, total] = await Promise.all([
+    Evaluation.find(query)
+      .populate('playerId', 'fullName playerCode')
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(limit),
+    Evaluation.countDocuments(query),
+  ]);
+
+  return sendPaginated(res, {
+    data: evaluations,
+    total,
+    page,
+    limit,
+    message: 'تم جلب التقييمات بنجاح',
+  });
+};
+
 module.exports = {
   createEvaluation,
   getEvaluationsByPlayer,
@@ -182,4 +220,5 @@ module.exports = {
   getEvaluationById,
   updateEvaluation,
   deleteEvaluation,
+  getEvaluationsByAcademy,
 };

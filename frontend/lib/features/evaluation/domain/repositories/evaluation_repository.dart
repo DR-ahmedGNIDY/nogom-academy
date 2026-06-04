@@ -46,4 +46,20 @@ abstract class EvaluationRepository {
   });
 
   Future<Either<Failure, void>> deleteEvaluation(String id);
+
+  Future<
+      Either<
+          Failure,
+          ({
+            List<EvaluationEntity> evaluations,
+            int total,
+            int page,
+            int totalPages,
+          })>> getEvaluationsByAcademy({
+    required String academyId,
+    DateTime? startDate,
+    DateTime? endDate,
+    int page = 1,
+    int limit = 100,
+  });
 }

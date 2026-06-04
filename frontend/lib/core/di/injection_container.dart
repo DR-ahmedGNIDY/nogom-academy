@@ -15,6 +15,7 @@ import 'package:basketball_academy/features/evaluation/domain/repositories/evalu
 import 'package:basketball_academy/features/evaluation/domain/usecases/create_evaluation_usecase.dart';
 import 'package:basketball_academy/features/evaluation/domain/usecases/delete_evaluation_usecase.dart';
 import 'package:basketball_academy/features/evaluation/domain/usecases/get_evaluation_usecase.dart';
+import 'package:basketball_academy/features/evaluation/domain/usecases/get_evaluations_by_academy_usecase.dart';
 import 'package:basketball_academy/features/evaluation/domain/usecases/get_evaluations_by_player_usecase.dart';
 import 'package:basketball_academy/features/evaluation/domain/usecases/get_latest_evaluation_usecase.dart';
 import 'package:basketball_academy/features/evaluation/domain/usecases/update_evaluation_usecase.dart';
@@ -236,6 +237,9 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<DeleteEvaluationUsecase>(
     () => DeleteEvaluationUsecase(sl<EvaluationRepository>()),
+  );
+  sl.registerLazySingleton<GetEvaluationsByAcademyUsecase>(
+    () => GetEvaluationsByAcademyUsecase(sl<EvaluationRepository>()),
   );
 
   // Dashboard

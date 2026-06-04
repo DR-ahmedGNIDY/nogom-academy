@@ -180,4 +180,47 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
       return const Left(UnknownFailure());
     }
   }
+
+  @override
+  Future<
+      Either<
+          Failure,
+          ({
+            List<EvaluationEntity> evaluations,
+            int total,
+            int page,
+            int totalPages,
+          })>> getEvaluationsByAcademy({
+    required String academyId,
+    DateTime? startDate,
+    DateTime? endDate,
+    int page = 1,
+    int limit = 100,
+  }) async {
+    try {
+      final result = await _remoteDatasource.getEvaluationsByAcademy(
+        academyId: academyId,
+        startDate: startDate,
+        endDate: endDate,
+        page: page,
+        limit: limit,
+      );
+      return Right((
+        evaluations: result.evaluations.map((m) => m.toEntity()).toList(),
+        total: result.total,
+        page: result.page,
+        totalPages: result.totalPages,
+      ));
+    } on UnauthorizedException {
+      return const Left(UnauthorizedFailure());
+    } on NetworkException {
+      return const Left(NetworkFailure());
+    } on TimeoutException {
+      return const Left(TimeoutFailure());
+    } on AppException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (_) {
+      return const Left(UnknownFailure());
+    }
+  }
 }

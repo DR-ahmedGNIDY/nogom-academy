@@ -7,6 +7,7 @@ const {
   getEvaluationById,
   updateEvaluation,
   deleteEvaluation,
+  getEvaluationsByAcademy,
 } = require('../controllers/evaluation.controller');
 const { protect } = require('../middleware/auth.middleware');
 const validate = require('../middleware/validate');
@@ -70,6 +71,9 @@ router.get('/player/:playerId', getEvaluationsByPlayer);
 
 // GET  /evaluations/player/:playerId/latest     — MUST be before /:id
 router.get('/player/:playerId/latest', getLatestEvaluation);
+
+// GET  /evaluations/academy/:academyId     — MUST be before /:id
+router.get('/academy/:academyId', getEvaluationsByAcademy);
 
 // GET  /evaluations/:id
 router.get('/:id', getEvaluationById);

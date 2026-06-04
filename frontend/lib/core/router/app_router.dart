@@ -1,4 +1,5 @@
 import 'package:basketball_academy/features/academy/presentation/screens/academy_detail_screen.dart';
+import 'package:basketball_academy/features/reports/presentation/screens/reports_screen.dart';
 import 'package:basketball_academy/features/academy/presentation/screens/academy_list_screen.dart';
 import 'package:basketball_academy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:basketball_academy/features/auth/presentation/screens/login_screen.dart';
@@ -29,6 +30,7 @@ class AppRoutes {
   static const String playerEvaluations =
       '/academies/:id/players/:playerId/evaluations';
   static const String dashboard = '/dashboard';
+  static const String reports = '/reports';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -122,6 +124,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             playerName: playerName,
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.reports,
+        builder: (context, state) => const ReportsScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
