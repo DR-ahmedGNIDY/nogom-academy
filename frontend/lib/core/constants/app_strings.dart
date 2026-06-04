@@ -121,6 +121,30 @@ class AppStrings {
   static const String totalRevenue = 'إجمالي الإيرادات';
   static const String monthlyRevenue = 'إيرادات الشهر';
 
+  // Evaluations
+  static const String evaluation = 'التقييم';
+  static const String addEvaluation = 'تقييم جديد';
+  static const String evaluationHistory = 'سجل التقييمات';
+  static const String latestEvaluation = 'آخر تقييم';
+  static const String evaluationDate = 'تاريخ التقييم';
+  static const String fitnessScore = 'اللياقة';
+  static const String basicSkillsScore = 'المهارات الأساسية';
+  static const String attackScore = 'الهجوم';
+  static const String defenseScore = 'الدفاع';
+  static const String commitmentScore = 'الالتزام';
+  static const String averageScore = 'المتوسط';
+  static const String evaluationGrade = 'التقدير';
+  static const String excellent = 'ممتاز';
+  static const String good = 'جيد';
+  static const String needsImprovement = 'يحتاج تحسين';
+  static const String evaluationAdded = 'تم إضافة التقييم بنجاح';
+  static const String evaluationUpdated = 'تم تحديث التقييم بنجاح';
+  static const String evaluationDeleted = 'تم حذف التقييم بنجاح';
+  static const String deleteEvaluationConfirm =
+      'هل أنت متأكد من حذف هذا التقييم؟';
+  static const String noEvaluations = 'لا توجد تقييمات بعد';
+  static const String evaluator = 'المقيّم';
+
   // Navigation
   static const String home = 'الرئيسية';
   static const String players = 'اللاعبون';

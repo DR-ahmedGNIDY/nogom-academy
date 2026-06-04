@@ -2,6 +2,7 @@ import 'package:basketball_academy/features/academy/presentation/screens/academy
 import 'package:basketball_academy/features/academy/presentation/screens/academy_list_screen.dart';
 import 'package:basketball_academy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:basketball_academy/features/auth/presentation/screens/login_screen.dart';
+import 'package:basketball_academy/features/evaluation/presentation/screens/evaluation_history_screen.dart';
 import 'package:basketball_academy/features/player/presentation/screens/player_detail_screen.dart';
 import 'package:basketball_academy/features/player/presentation/screens/players_list_screen.dart';
 import 'package:basketball_academy/features/splash/presentation/screens/splash_screen.dart';
@@ -24,6 +25,8 @@ class AppRoutes {
   static const String playerDetail = '/academies/:id/players/:playerId';
   static const String playerSubscriptions =
       '/academies/:id/players/:playerId/subscriptions';
+  static const String playerEvaluations =
+      '/academies/:id/players/:playerId/evaluations';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -94,6 +97,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final playerName =
               state.uri.queryParameters['playerName'] ?? '';
           return PlayerSubscriptionHistoryScreen(
+            playerId: playerId,
+            academyId: academyId,
+            playerName: playerName,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.playerEvaluations,
+        builder: (context, state) {
+          final academyId = state.pathParameters['id']!;
+          final playerId = state.pathParameters['playerId']!;
+          final playerName =
+              state.uri.queryParameters['playerName'] ?? '';
+          return EvaluationHistoryScreen(
             playerId: playerId,
             academyId: academyId,
             playerName: playerName,

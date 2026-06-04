@@ -1,5 +1,14 @@
 import 'package:basketball_academy/core/network/api_client.dart';
 import 'package:basketball_academy/core/network/token_manager.dart';
+import 'package:basketball_academy/features/evaluation/data/datasources/evaluation_remote_datasource.dart';
+import 'package:basketball_academy/features/evaluation/data/repositories/evaluation_repository_impl.dart';
+import 'package:basketball_academy/features/evaluation/domain/repositories/evaluation_repository.dart';
+import 'package:basketball_academy/features/evaluation/domain/usecases/create_evaluation_usecase.dart';
+import 'package:basketball_academy/features/evaluation/domain/usecases/delete_evaluation_usecase.dart';
+import 'package:basketball_academy/features/evaluation/domain/usecases/get_evaluation_usecase.dart';
+import 'package:basketball_academy/features/evaluation/domain/usecases/get_evaluations_by_player_usecase.dart';
+import 'package:basketball_academy/features/evaluation/domain/usecases/get_latest_evaluation_usecase.dart';
+import 'package:basketball_academy/features/evaluation/domain/usecases/update_evaluation_usecase.dart';
 import 'package:basketball_academy/features/subscription/data/datasources/subscription_remote_datasource.dart';
 import 'package:basketball_academy/features/subscription/data/repositories/subscription_repository_impl.dart';
 import 'package:basketball_academy/features/subscription/domain/repositories/subscription_repository.dart';
@@ -191,5 +200,32 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<GetRevenueSummaryUsecase>(
     () => GetRevenueSummaryUsecase(sl<SubscriptionRepository>()),
+  );
+
+  // Evaluation
+  sl.registerLazySingleton<EvaluationRemoteDatasource>(
+    () => EvaluationRemoteDatasourceImpl(sl<ApiClient>()),
+  );
+  sl.registerLazySingleton<EvaluationRepository>(
+    () => EvaluationRepositoryImpl(
+        remoteDatasource: sl<EvaluationRemoteDatasource>()),
+  );
+  sl.registerLazySingleton<GetEvaluationsByPlayerUsecase>(
+    () => GetEvaluationsByPlayerUsecase(sl<EvaluationRepository>()),
+  );
+  sl.registerLazySingleton<GetLatestEvaluationUsecase>(
+    () => GetLatestEvaluationUsecase(sl<EvaluationRepository>()),
+  );
+  sl.registerLazySingleton<GetEvaluationUsecase>(
+    () => GetEvaluationUsecase(sl<EvaluationRepository>()),
+  );
+  sl.registerLazySingleton<CreateEvaluationUsecase>(
+    () => CreateEvaluationUsecase(sl<EvaluationRepository>()),
+  );
+  sl.registerLazySingleton<UpdateEvaluationUsecase>(
+    () => UpdateEvaluationUsecase(sl<EvaluationRepository>()),
+  );
+  sl.registerLazySingleton<DeleteEvaluationUsecase>(
+    () => DeleteEvaluationUsecase(sl<EvaluationRepository>()),
   );
 }

@@ -1,6 +1,9 @@
 import 'package:basketball_academy/core/constants/app_colors.dart';
 import 'package:basketball_academy/core/constants/app_strings.dart';
 import 'package:basketball_academy/features/auth/presentation/providers/auth_provider.dart';
+import 'package:basketball_academy/features/evaluation/presentation/providers/evaluation_provider.dart';
+import 'package:basketball_academy/features/evaluation/presentation/screens/add_evaluation_screen.dart';
+import 'package:basketball_academy/features/evaluation/presentation/screens/evaluation_history_screen.dart';
 import 'package:basketball_academy/features/player/domain/entities/player_entity.dart';
 import 'package:basketball_academy/features/player/presentation/providers/player_provider.dart';
 import 'package:basketball_academy/features/player/presentation/screens/edit_player_screen.dart';
@@ -478,6 +481,15 @@ class _PlayerDetailContent extends ConsumerWidget {
                   // Subscription Actions Card
                   _buildSubscriptionActionsCard(context, player, canEdit),
 
+                  Gap(8.h),
+                  _LatestEvaluationCard(
+                    playerId: player.id,
+                    academyId: academyId,
+                    playerName: player.fullName,
+                    canEdit: canEdit,
+                  ),
+                  Gap(16.h),
+
                   Gap(80.h),
                 ],
               ),
@@ -581,6 +593,231 @@ class _RowDivider extends StatelessWidget {
       indent: 68.w,
       endIndent: 16.w,
       color: AppColors.grey100,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Latest Evaluation Card
+// ---------------------------------------------------------------------------
+
+class _LatestEvaluationCard extends ConsumerWidget {
+  final String playerId;
+  final String academyId;
+  final String playerName;
+  final bool canEdit;
+
+  const _LatestEvaluationCard({
+    required this.playerId,
+    required this.academyId,
+    required this.playerName,
+    required this.canEdit,
+  });
+
+  Widget _scoreRow(BuildContext context, String label, double value) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 2.h),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: AppColors.grey500,
+              ),
+            ),
+          ),
+          Text(
+            '${value.toInt()}/10',
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final latestAsync = ref.watch(latestEvaluationProvider(playerId));
+
+    return latestAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (evaluation) {
+        if (evaluation == null) {
+          return Card(
+            margin: EdgeInsets.symmetric(horizontal: 0.w),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.r),
+            ),
+            elevation: 1,
+            child: Padding(
+              padding: EdgeInsets.all(16.r),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    AppStrings.latestEvaluation,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.grey800,
+                    ),
+                  ),
+                  Gap(8.h),
+                  Text(
+                    AppStrings.noEvaluations,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: AppColors.grey500,
+                    ),
+                  ),
+                  if (canEdit) ...[
+                    Gap(8.h),
+                    OutlinedButton.icon(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => AddEvaluationScreen(
+                            playerId: playerId,
+                            academyId: academyId,
+                            playerName: playerName,
+                          ),
+                        ),
+                      ),
+                      icon: const Icon(Icons.add_chart),
+                      label: const Text(AppStrings.addEvaluation),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }
+
+        Color gradeColor;
+        Color gradeBgColor;
+        if (evaluation.average >= 8) {
+          gradeColor = AppColors.success;
+          gradeBgColor = AppColors.successLight;
+        } else if (evaluation.average >= 6) {
+          gradeColor = AppColors.warning;
+          gradeBgColor = AppColors.warningLight;
+        } else {
+          gradeColor = AppColors.error;
+          gradeBgColor = AppColors.errorLight;
+        }
+
+        return Card(
+          margin: EdgeInsets.symmetric(horizontal: 0.w),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          elevation: 1,
+          child: Padding(
+            padding: EdgeInsets.all(16.r),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      AppStrings.latestEvaluation,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.grey800,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 10.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: gradeBgColor,
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Text(
+                        evaluation.gradeLabel,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w700,
+                          color: gradeColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Gap(8.h),
+                Center(
+                  child: Text(
+                    evaluation.average.toStringAsFixed(1),
+                    style: TextStyle(
+                      fontSize: 40.sp,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+                Center(
+                  child: Text(
+                    AppStrings.averageScore,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: AppColors.grey500,
+                    ),
+                  ),
+                ),
+                Gap(8.h),
+                const Divider(height: 1, color: AppColors.grey100),
+                Gap(8.h),
+                _scoreRow(context, AppStrings.fitnessScore, evaluation.fitness),
+                _scoreRow(context, AppStrings.basicSkillsScore,
+                    evaluation.basicSkills),
+                _scoreRow(context, AppStrings.attackScore, evaluation.attack),
+                _scoreRow(
+                    context, AppStrings.defenseScore, evaluation.defense),
+                _scoreRow(
+                    context, AppStrings.commitmentScore, evaluation.commitment),
+                Gap(8.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => EvaluationHistoryScreen(
+                            playerId: playerId,
+                            academyId: academyId,
+                            playerName: playerName,
+                          ),
+                        ),
+                      ),
+                      icon: const Icon(Icons.history),
+                      label: const Text('عرض كل التقييمات'),
+                    ),
+                    if (canEdit)
+                      TextButton.icon(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => AddEvaluationScreen(
+                              playerId: playerId,
+                              academyId: academyId,
+                              playerName: playerName,
+                            ),
+                          ),
+                        ),
+                        icon: const Icon(Icons.add_chart),
+                        label: const Text(AppStrings.addEvaluation),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
