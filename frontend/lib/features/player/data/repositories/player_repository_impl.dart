@@ -1,0 +1,205 @@
+import 'package:basketball_academy/core/errors/exceptions.dart';
+import 'package:basketball_academy/core/errors/failures.dart';
+import 'package:basketball_academy/features/player/data/datasources/player_remote_datasource.dart';
+import 'package:basketball_academy/features/player/domain/entities/player_entity.dart';
+import 'package:basketball_academy/features/player/domain/repositories/player_repository.dart';
+import 'package:dartz/dartz.dart';
+
+class PlayerRepositoryImpl implements PlayerRepository {
+  final PlayerRemoteDatasource _remoteDatasource;
+
+  PlayerRepositoryImpl({required PlayerRemoteDatasource remoteDatasource})
+      : _remoteDatasource = remoteDatasource;
+
+  @override
+  Future<
+      Either<
+          Failure,
+          ({
+            List<PlayerEntity> players,
+            int total,
+            int page,
+            int totalPages,
+          })>> getPlayers({
+    String? academyId,
+    String? search,
+    int? birthYear,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    try {
+      final result = await _remoteDatasource.getPlayers(
+        academyId: academyId,
+        search: search,
+        birthYear: birthYear,
+        page: page,
+        limit: limit,
+      );
+      return Right((
+        players: result.players.map((m) => m.toEntity()).toList(),
+        total: result.total,
+        page: result.page,
+        totalPages: result.totalPages,
+      ));
+    } on UnauthorizedException {
+      return const Left(UnauthorizedFailure());
+    } on NetworkException {
+      return const Left(NetworkFailure());
+    } on TimeoutException {
+      return const Left(TimeoutFailure());
+    } on AppException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (_) {
+      return const Left(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<PlayerEntity>>> searchPlayers(
+      String query) async {
+    try {
+      final models = await _remoteDatasource.searchPlayers(query);
+      return Right(models.map((m) => m.toEntity()).toList());
+    } on UnauthorizedException {
+      return const Left(UnauthorizedFailure());
+    } on NetworkException {
+      return const Left(NetworkFailure());
+    } on TimeoutException {
+      return const Left(TimeoutFailure());
+    } on AppException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (_) {
+      return const Left(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, PlayerEntity>> getPlayerById(String id) async {
+    try {
+      final model = await _remoteDatasource.getPlayerById(id);
+      return Right(model.toEntity());
+    } on NotFoundException {
+      return const Left(NotFoundFailure());
+    } on UnauthorizedException {
+      return const Left(UnauthorizedFailure());
+    } on AppException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (_) {
+      return const Left(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, PlayerEntity>> createPlayer({
+    required String fullName,
+    required DateTime birthDate,
+    required String parentName,
+    required String parentRelationship,
+    String? parentJob,
+    required String parentPhone,
+    String? notes,
+    String? academyId,
+    String? imagePath,
+  }) async {
+    try {
+      final model = await _remoteDatasource.createPlayer(
+        fullName: fullName,
+        birthDate: birthDate,
+        parentName: parentName,
+        parentRelationship: parentRelationship,
+        parentJob: parentJob,
+        parentPhone: parentPhone,
+        notes: notes,
+        academyId: academyId,
+        imagePath: imagePath,
+      );
+      return Right(model.toEntity());
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } on UnauthorizedException {
+      return const Left(UnauthorizedFailure());
+    } on NetworkException {
+      return const Left(NetworkFailure());
+    } on TimeoutException {
+      return const Left(TimeoutFailure());
+    } on AppException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (_) {
+      return const Left(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, PlayerEntity>> updatePlayer({
+    required String id,
+    String? fullName,
+    DateTime? birthDate,
+    String? parentName,
+    String? parentRelationship,
+    String? parentJob,
+    String? parentPhone,
+    String? notes,
+    String? imagePath,
+  }) async {
+    try {
+      final model = await _remoteDatasource.updatePlayer(
+        id: id,
+        fullName: fullName,
+        birthDate: birthDate,
+        parentName: parentName,
+        parentRelationship: parentRelationship,
+        parentJob: parentJob,
+        parentPhone: parentPhone,
+        notes: notes,
+        imagePath: imagePath,
+      );
+      return Right(model.toEntity());
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } on NotFoundException {
+      return const Left(NotFoundFailure());
+    } on UnauthorizedException {
+      return const Left(UnauthorizedFailure());
+    } on NetworkException {
+      return const Left(NetworkFailure());
+    } on TimeoutException {
+      return const Left(TimeoutFailure());
+    } on AppException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (_) {
+      return const Left(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deletePlayer(String id) async {
+    try {
+      await _remoteDatasource.deletePlayer(id);
+      return const Right(null);
+    } on NotFoundException {
+      return const Left(NotFoundFailure());
+    } on UnauthorizedException {
+      return const Left(UnauthorizedFailure());
+    } on AppException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (_) {
+      return const Left(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deletePlayerImage(String id) async {
+    try {
+      await _remoteDatasource.deletePlayerImage(id);
+      return const Right(null);
+    } on NotFoundException {
+      return const Left(NotFoundFailure());
+    } on UnauthorizedException {
+      return const Left(UnauthorizedFailure());
+    } on AppException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (_) {
+      return const Left(UnknownFailure());
+    }
+  }
+}

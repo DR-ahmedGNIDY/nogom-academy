@@ -14,6 +14,15 @@ import 'package:basketball_academy/features/auth/domain/repositories/auth_reposi
 import 'package:basketball_academy/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:basketball_academy/features/auth/domain/usecases/login_usecase.dart';
 import 'package:basketball_academy/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:basketball_academy/features/player/data/datasources/player_remote_datasource.dart';
+import 'package:basketball_academy/features/player/data/repositories/player_repository_impl.dart';
+import 'package:basketball_academy/features/player/domain/repositories/player_repository.dart';
+import 'package:basketball_academy/features/player/domain/usecases/create_player_usecase.dart';
+import 'package:basketball_academy/features/player/domain/usecases/delete_player_usecase.dart';
+import 'package:basketball_academy/features/player/domain/usecases/get_player_usecase.dart';
+import 'package:basketball_academy/features/player/domain/usecases/get_players_usecase.dart';
+import 'package:basketball_academy/features/player/domain/usecases/search_players_usecase.dart';
+import 'package:basketball_academy/features/player/domain/usecases/update_player_usecase.dart';
 import 'package:basketball_academy/features/user/data/datasources/user_remote_datasource.dart';
 import 'package:basketball_academy/features/user/data/repositories/user_repository_impl.dart';
 import 'package:basketball_academy/features/user/domain/repositories/user_repository.dart';
@@ -116,5 +125,31 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<DeactivateUserUsecase>(
     () => DeactivateUserUsecase(sl<UserRepository>()),
+  );
+
+  // Player
+  sl.registerLazySingleton<PlayerRemoteDatasource>(
+    () => PlayerRemoteDatasourceImpl(sl<ApiClient>()),
+  );
+  sl.registerLazySingleton<PlayerRepository>(
+    () => PlayerRepositoryImpl(remoteDatasource: sl<PlayerRemoteDatasource>()),
+  );
+  sl.registerLazySingleton<GetPlayersUsecase>(
+    () => GetPlayersUsecase(sl<PlayerRepository>()),
+  );
+  sl.registerLazySingleton<SearchPlayersUsecase>(
+    () => SearchPlayersUsecase(sl<PlayerRepository>()),
+  );
+  sl.registerLazySingleton<GetPlayerUsecase>(
+    () => GetPlayerUsecase(sl<PlayerRepository>()),
+  );
+  sl.registerLazySingleton<CreatePlayerUsecase>(
+    () => CreatePlayerUsecase(sl<PlayerRepository>()),
+  );
+  sl.registerLazySingleton<UpdatePlayerUsecase>(
+    () => UpdatePlayerUsecase(sl<PlayerRepository>()),
+  );
+  sl.registerLazySingleton<DeletePlayerUsecase>(
+    () => DeletePlayerUsecase(sl<PlayerRepository>()),
   );
 }

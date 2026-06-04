@@ -15,6 +15,7 @@ const notFound = require('./middleware/notFound');
 const authRoutes = require('./routes/auth.routes');
 const academyRoutes = require('./routes/academy.routes');
 const userRoutes = require('./routes/user.routes');
+const playerRoutes = require('./routes/player.routes');
 
 const app = express();
 
@@ -59,6 +60,7 @@ app.get('/health', (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/academies', academyRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/players', playerRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -68,6 +68,36 @@ class AppStrings {
   static const String noUsers = 'لا يوجد مستخدمون';
   static const String academyUsers = 'مستخدمو الأكاديمية';
 
+  // Players
+  static const String player = 'اللاعب';
+  static const String addPlayer = 'إضافة لاعب';
+  static const String editPlayer = 'تعديل اللاعب';
+  static const String playerDetails = 'تفاصيل اللاعب';
+  static const String playerCode = 'كود اللاعب';
+  static const String playerName = 'اسم اللاعب';
+  static const String birthDate = 'تاريخ الميلاد';
+  static const String age = 'العمر';
+  static const String parentInfo = 'معلومات ولي الأمر';
+  static const String parentName = 'اسم ولي الأمر';
+  static const String parentRelationship = 'صلة القرابة';
+  static const String parentJob = 'مهنة ولي الأمر';
+  static const String parentPhone = 'رقم هاتف ولي الأمر';
+  static const String notes = 'ملاحظات';
+  static const String playerImage = 'صورة اللاعب';
+  static const String playerAdded = 'تم إضافة اللاعب بنجاح';
+  static const String playerUpdated = 'تم تحديث اللاعب بنجاح';
+  static const String playerDeleted = 'تم حذف اللاعب بنجاح';
+  static const String deletePlayerConfirm = 'هل أنت متأكد من حذف هذا اللاعب؟';
+  static const String noPlayers = 'لا يوجد لاعبون';
+  static const String searchPlayers = 'بحث في اللاعبين...';
+  static const String filterByYear = 'فلتر حسب السنة';
+  static const String yearsOld = 'سنة';
+  static const String selectDate = 'اختر التاريخ';
+  static const String fromGallery = 'من الاستوديو';
+  static const String fromCamera = 'كاميرا';
+  static const String changeImage = 'تغيير الصورة';
+  static const String playerInfo = 'معلومات اللاعب';
+
   // Navigation
   static const String home = 'الرئيسية';
   static const String players = 'اللاعبون';

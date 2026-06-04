@@ -1,5 +1,6 @@
 import 'package:basketball_academy/core/constants/app_colors.dart';
 import 'package:basketball_academy/core/constants/app_strings.dart';
+import 'package:basketball_academy/core/router/app_router.dart';
 import 'package:basketball_academy/features/academy/domain/entities/academy_entity.dart';
 import 'package:basketball_academy/features/academy/presentation/providers/academy_provider.dart';
 import 'package:basketball_academy/features/academy/presentation/screens/edit_academy_screen.dart';
@@ -320,6 +321,63 @@ class _AcademyDetailContent extends ConsumerWidget {
                           value: dateFormat.format(academy.updatedAt!),
                         ),
                       ],
+                    ],
+                  ),
+
+                  Gap(24.h),
+                  Text(
+                    'الإدارة',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.grey800,
+                    ),
+                  ),
+                  Gap(16.h),
+                  _DetailCard(
+                    children: [
+                      InkWell(
+                        onTap: () => context.go(
+                          AppRoutes.playersList.replaceFirst(
+                              ':id', academy.id),
+                        ),
+                        borderRadius: BorderRadius.circular(16.r),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.w, vertical: 14.h),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40.w,
+                                height: 40.w,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryContainer,
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                                child: Icon(
+                                  Icons.sports_basketball_outlined,
+                                  color: AppColors.primary,
+                                  size: 20.sp,
+                                ),
+                              ),
+                              Gap(12.w),
+                              Expanded(
+                                child: Text(
+                                  AppStrings.players,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.grey800,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                Icons.chevron_left,
+                                color: AppColors.grey400,
+                                size: 20.sp,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
 

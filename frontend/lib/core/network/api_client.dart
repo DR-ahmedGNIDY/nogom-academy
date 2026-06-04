@@ -101,6 +101,38 @@ class ApiClient {
     }
   }
 
+  Future<Response<T>> postMultipart<T>(
+    String path, {
+    required FormData data,
+    Options? options,
+  }) async {
+    try {
+      return await _dio.post<T>(
+        path,
+        data: data,
+        options: options ?? Options(contentType: 'multipart/form-data'),
+      );
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    }
+  }
+
+  Future<Response<T>> putMultipart<T>(
+    String path, {
+    required FormData data,
+    Options? options,
+  }) async {
+    try {
+      return await _dio.put<T>(
+        path,
+        data: data,
+        options: options ?? Options(contentType: 'multipart/form-data'),
+      );
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    }
+  }
+
   AppException _handleDioException(DioException e) {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
