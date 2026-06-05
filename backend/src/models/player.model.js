@@ -11,7 +11,6 @@ const playerSchema = new mongoose.Schema(
       type: String,
       unique: true,
       immutable: true,
-      index: true,
     },
     fullName: {
       type: String,
@@ -85,7 +84,6 @@ const playerSchema = new mongoose.Schema(
 
 // Indexes
 playerSchema.index({ academyId: 1 });
-playerSchema.index({ playerCode: 1 }, { unique: true });
 playerSchema.index({ academyId: 1, isActive: 1 });
 playerSchema.index(
   { fullName: 'text', playerCode: 'text', parentPhone: 'text' },
