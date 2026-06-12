@@ -3,6 +3,7 @@ import 'package:basketball_academy/features/auth/domain/entities/user_entity.dar
 import 'package:basketball_academy/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:basketball_academy/features/auth/domain/usecases/login_usecase.dart';
 import 'package:basketball_academy/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthState {
@@ -42,6 +43,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
   @override
   Future<AuthState> build() async {
+    debugPrint('[AUTH] AuthNotifier.build() — checking saved token');
     _loginUsecase = sl<LoginUsecase>();
     _logoutUsecase = sl<LogoutUsecase>();
     _getCurrentUserUsecase = sl<GetCurrentUserUsecase>();
@@ -57,15 +59,22 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 
   Future<void> login({required String email, required String password}) async {
+    debugPrint('[AUTH] login() called — state → loading');
     state = const AsyncValue.loading();
     final result = await _loginUsecase(LoginParams(email: email, password: password));
     state = result.fold(
-      (failure) => AsyncValue.data(
-        AuthState(isAuthenticated: false, errorMessage: failure.message),
-      ),
-      (user) => AsyncValue.data(
-        AuthState(isAuthenticated: true, user: user),
-      ),
+      (failure) {
+        debugPrint('[AUTH] login() FAILED: ${failure.message}');
+        return AsyncValue.data(
+          AuthState(isAuthenticated: false, errorMessage: failure.message),
+        );
+      },
+      (user) {
+        debugPrint('[AUTH] login() SUCCESS: ${user.email} role=${user.role}');
+        return AsyncValue.data(
+          AuthState(isAuthenticated: true, user: user),
+        );
+      },
     );
   }
 

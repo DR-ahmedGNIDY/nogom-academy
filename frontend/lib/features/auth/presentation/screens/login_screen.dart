@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -21,6 +22,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _rememberMe = false;
+  bool _hasSubmitted = false;
+  static const _kRememberKey = 'remember_me';
+  static const _kSavedEmailKey = 'saved_email';
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -41,6 +46,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic));
     _animController.forward();
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final remember = prefs.getBool(_kRememberKey) ?? false;
+    if (remember) {
+      final savedEmail = prefs.getString(_kSavedEmailKey) ?? '';
+      setState(() {
+        _rememberMe = true;
+        _emailController.text = savedEmail;
+      });
+    }
+  }
+
+  Future<void> _saveCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kRememberKey, _rememberMe);
+    if (_rememberMe) {
+      await prefs.setString(_kSavedEmailKey, _emailController.text.trim());
+    } else {
+      await prefs.remove(_kSavedEmailKey);
+    }
   }
 
   @override
@@ -53,6 +81,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   void _handleLogin() {
     if (_formKey.currentState?.validate() ?? false) {
+      setState(() => _hasSubmitted = true);
+      _saveCredentials();
       ref.read(authStateProvider.notifier).login(
             email: _emailController.text.trim(),
             password: _passwordController.text,
@@ -66,20 +96,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
     ref.listen(authStateProvider, (_, next) {
       final st = next.valueOrNull;
-      if (st?.isAuthenticated == true) {
-        context.go(AppRoutes.home);
-      } else if (st?.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(st!.errorMessage!),
-            backgroundColor: AppColors.error,
-          ),
-        );
-        ref.read(authStateProvider.notifier).clearError();
+      // التوجيه يتم تلقائياً عبر GoRouter redirect عند isAuthenticated == true
+      if (!next.isLoading && st?.isAuthenticated != true) {
+        if (_hasSubmitted) setState(() => _hasSubmitted = false);
+        if (st?.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(st!.errorMessage!),
+              backgroundColor: AppColors.error,
+            ),
+          );
+          ref.read(authStateProvider.notifier).clearError();
+        }
       }
     });
 
-    final isLoading = ref.watch(authStateProvider).isLoading;
+    final authAsync = ref.watch(authStateProvider);
+    // يظهر loading فقط لو المستخدم ضغط الزر بالفعل + الـ provider شغال فعلاً
+    final isLoading = _hasSubmitted && authAsync.isLoading;
 
     return Scaffold(
       body: Container(
@@ -218,7 +252,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 return null;
                               },
                             ),
-                            Gap(28.h),
+                            Gap(16.h),
+                            // Remember me checkbox
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 24.w,
+                                  height: 24.w,
+                                  child: Checkbox(
+                                    value: _rememberMe,
+                                    activeColor: AppColors.primary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4.r),
+                                    ),
+                                    onChanged: (v) =>
+                                        setState(() => _rememberMe = v ?? false),
+                                  ),
+                                ),
+                                Gap(8.w),
+                                GestureDetector(
+                                  onTap: () =>
+                                      setState(() => _rememberMe = !_rememberMe),
+                                  child: Text(
+                                    'حفظ تسجيل الدخول',
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      color: AppColors.grey700,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Gap(20.h),
                             SizedBox(
                               height: 50.h,
                               child: ElevatedButton(

@@ -5,11 +5,13 @@ import 'package:basketball_academy/features/auth/presentation/providers/auth_pro
 import 'package:basketball_academy/features/auth/presentation/screens/login_screen.dart';
 import 'package:basketball_academy/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:basketball_academy/features/evaluation/presentation/screens/evaluation_history_screen.dart';
+import 'package:basketball_academy/features/notification/presentation/screens/notifications_screen.dart';
 import 'package:basketball_academy/features/player/presentation/screens/player_detail_screen.dart';
 import 'package:basketball_academy/features/player/presentation/screens/players_list_screen.dart';
 import 'package:basketball_academy/features/splash/presentation/screens/splash_screen.dart';
 import 'package:basketball_academy/features/subscription/presentation/screens/player_subscription_history_screen.dart';
 import 'package:basketball_academy/features/user/presentation/screens/users_list_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -31,22 +33,63 @@ class AppRoutes {
       '/academies/:id/players/:playerId/evaluations';
   static const String dashboard = '/dashboard';
   static const String reports = '/reports';
+  static const String notifications = '/notifications';
+}
+
+// RouterNotifier يُبلِّغ GoRouter عند تغيّر حالة المصادقة
+// بدلاً من إعادة إنشاء GoRouter كل مرة (كان يُسبب عودة Splash)
+class _RouterNotifier extends ChangeNotifier {
+  final Ref _ref;
+
+  _RouterNotifier(this._ref) {
+    debugPrint('[ROUTER] _RouterNotifier created — GoRouter instance #${identityHashCode(this)}');
+    _ref.listen<AsyncValue<AuthState>>(authStateProvider, (prev, next) {
+      debugPrint('[ROUTER] authState changed: ${prev.runtimeType} → ${next.runtimeType} | isLoading=${next.isLoading} | isAuthenticated=${next.valueOrNull?.isAuthenticated}');
+      notifyListeners();
+    });
+  }
+
+  String? redirect(BuildContext context, GoRouterState state) {
+    final authAsync = _ref.read(authStateProvider);
+    final isLoggedIn = authAsync.valueOrNull?.isAuthenticated ?? false;
+    final user = authAsync.valueOrNull?.user;
+    final loc = state.matchedLocation;
+
+    debugPrint('[ROUTER] redirect() loc=$loc isLoggedIn=$isLoggedIn isLoading=${authAsync.isLoading}');
+
+    if (loc == AppRoutes.splash) return null;
+    if (!isLoggedIn && loc != AppRoutes.login) return AppRoutes.login;
+    if (isLoggedIn && loc == AppRoutes.login) {
+      if (user?.isAdmin == true && user?.academyId != null) {
+        return AppRoutes.playersList.replaceFirst(':id', user!.academyId!);
+      }
+      return AppRoutes.home;
+    }
+    if (user?.isAdmin == true) {
+      final academyId = user?.academyId;
+      final allowedPrefixes = [
+        '/academies/${academyId ?? ''}/players',
+        AppRoutes.notifications,
+      ];
+      final isAllowed = academyId != null &&
+          allowedPrefixes.any((prefix) => loc.startsWith(prefix));
+      if (!isAllowed && academyId != null) {
+        return AppRoutes.playersList.replaceFirst(':id', academyId);
+      }
+    }
+    return null;
+  }
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
+  debugPrint('[ROUTER] appRouterProvider.build() — GoRouter being CREATED (should happen once)');
+  final notifier = _RouterNotifier(ref);
+  ref.onDispose(notifier.dispose);
 
-  return GoRouter(
+  final router = GoRouter(
     initialLocation: AppRoutes.splash,
-    redirect: (context, state) {
-      final isLoggedIn = authState.valueOrNull?.isAuthenticated ?? false;
-      final loc = state.matchedLocation;
-
-      if (loc == AppRoutes.splash) return null;
-      if (!isLoggedIn && loc != AppRoutes.login) return AppRoutes.login;
-      if (isLoggedIn && loc == AppRoutes.login) return AppRoutes.home;
-      return null;
-    },
+    refreshListenable: notifier,
+    redirect: notifier.redirect,
     routes: [
       GoRoute(
         path: AppRoutes.splash,
@@ -129,6 +172,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.reports,
         builder: (context, state) => const ReportsScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.notifications,
+        builder: (context, state) => const NotificationsScreen(),
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(
@@ -150,4 +197,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
     ),
   );
+  ref.onDispose(router.dispose);
+  return router;
 });
