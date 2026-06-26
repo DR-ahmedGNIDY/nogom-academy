@@ -53,23 +53,21 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel
 
-      - name: Build and deploy to Vercel (production)
-        working-directory: frontend/build/web
+      - name: Deploy build/web to Vercel (production)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        # Plain `vercel deploy <dir>` without --prebuilt re-runs Vercel's own
+        # `vercel deploy <dir>` without --prebuilt re-runs Vercel's own
         # zero-config build against the uploaded folder using the project's
-        # framework settings. Since this folder has no package.json, that
+        # framework settings. Since build/web has no package.json, that
         # build silently produced an empty deployment -> live 404.
         #
-        # This vercel.json sets "buildCommand": null, so `vercel build` skips
-        # building entirely and just packages these static files into
-        # .vercel/output (verified locally: produces builds.json + static/
-        # with all expected files). `vercel deploy --prebuilt` then uploads
-        # exactly that, with no build step able to silently go wrong.
-        run: |
-          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-          vercel build --prod --token="$VERCEL_TOKEN"
-          vercel deploy --prebuilt --prod --yes --token="$VERCEL_TOKEN"
+        # build/web/vercel.json sets "buildCommand": null, which tells
+        # Vercel to skip its own build step and just serve these static
+        # files directly. (vercel pull / vercel build / deploy --prebuilt
+        # were all tried and consistently failed only in CI — likely the
+        # CI token's scope doesn't cover the project-settings APIs those
+        # need — so sticking to the plain deploy command that has reliably
+        # worked with this token for weeks.)
+        run: vercel deploy build/web --prod --yes --token="$VERCEL_TOKEN"
