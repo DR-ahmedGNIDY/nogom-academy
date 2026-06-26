@@ -70,15 +70,15 @@ jobs:
           rm -rf .vercel/output
           mkdir -p .vercel/output/static
           cp -r build/web/. .vercel/output/static/
-          cat > .vercel/output/config.json <<'EOF'
-          {
-            "version": 3,
-            "routes": [
-              { "handle": "filesystem" },
-              { "src": "/(.*)", "dest": "/index.html" }
-            ]
-          }
-          EOF
+          printf '%s\n' \
+            '{' \
+            '  "version": 3,' \
+            '  "routes": [' \
+            '    { "handle": "filesystem" },' \
+            '    { "src": "/(.*)", "dest": "/index.html" }' \
+            '  ]' \
+            '}' \
+            > .vercel/output/config.json
 
       - name: Verify Build Output assembled correctly
         run: |
