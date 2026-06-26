@@ -9,6 +9,19 @@ frontend/pubspec.lock
 # Android build outputs (redirected to G:)
 frontend/android/.gradle/
 frontend/android/local.properties
+frontend/android/app/build/
+frontend/android/app/.cxx/
+frontend/android/build/
+
+# Stray local build artifacts
+/$dest/
+*.apk
+
+# Android release signing — NEVER commit these
+frontend/android/key.properties
+frontend/android/keystore/
+*.jks
+*.keystore
 
 # iOS
 frontend/ios/Pods/

@@ -1,7 +1,10 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:basketball_academy/core/constants/app_colors.dart';
 import 'package:basketball_academy/core/constants/app_strings.dart';
+import 'package:basketball_academy/core/constants/sports_constants.dart';
+import 'package:basketball_academy/core/widgets/multi_select_chips.dart';
+import 'package:basketball_academy/features/academy/presentation/providers/academy_provider.dart';
 import 'package:basketball_academy/features/player/domain/entities/player_entity.dart';
 import 'package:basketball_academy/features/player/presentation/providers/player_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -32,11 +35,15 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
   late final TextEditingController _parentNameController;
   late final TextEditingController _parentJobController;
   late final TextEditingController _parentPhoneController;
+  late final TextEditingController _playerPhoneController;
   late final TextEditingController _notesController;
 
   DateTime? _birthDate;
   String? _selectedRelationship;
+  String? _selectedSport;
+  late List<String> _selectedAttendanceDays;
   XFile? _pickedImage;
+  Uint8List? _pickedImageBytes;
   bool _isLoading = false;
 
   final _dateFormat = DateFormat('dd/MM/yyyy', 'ar');
@@ -66,10 +73,14 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
         TextEditingController(text: widget.player.parentJob ?? '');
     _parentPhoneController =
         TextEditingController(text: widget.player.parentPhone);
+    _playerPhoneController =
+        TextEditingController(text: widget.player.playerPhone ?? '');
     _notesController =
         TextEditingController(text: widget.player.notes ?? '');
     _birthDate = widget.player.birthDate;
     _selectedRelationship = widget.player.parentRelationship;
+    _selectedSport = widget.player.sport;
+    _selectedAttendanceDays = List<String>.from(widget.player.attendanceDays);
   }
 
   @override
@@ -78,6 +89,7 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
     _parentNameController.dispose();
     _parentJobController.dispose();
     _parentPhoneController.dispose();
+    _playerPhoneController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -91,7 +103,11 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
       imageQuality: 85,
     );
     if (image != null) {
-      setState(() => _pickedImage = image);
+      final bytes = await image.readAsBytes();
+      setState(() {
+        _pickedImage = image;
+        _pickedImageBytes = bytes;
+      });
     }
   }
 
@@ -190,6 +206,19 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
       return;
     }
 
+    final academy = ref.read(academyByIdProvider(widget.academyId)).valueOrNull;
+    final isMultiSport = academy?.isMultiSport ?? false;
+    if (isMultiSport && (_selectedSport == null || _selectedSport!.isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('الرجاء اختيار الرياضة'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     final error = await ref.read(playersProvider.notifier).updatePlayer(
@@ -202,9 +231,13 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
               ? null
               : _parentJobController.text.trim(),
           parentPhone: _parentPhoneController.text.trim(),
+          // Always send (even empty) so clearing the field removes the saved number
+          playerPhone: _playerPhoneController.text.trim(),
           notes: _notesController.text.trim().isEmpty
               ? null
               : _notesController.text.trim(),
+          sport: isMultiSport ? _selectedSport : null,
+          attendanceDays: _selectedAttendanceDays,
           imagePath: _pickedImage?.path,
         );
 
@@ -233,6 +266,10 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final academy = ref.watch(academyByIdProvider(widget.academyId)).valueOrNull;
+    final isMultiSport = academy?.isMultiSport ?? false;
+    final sports = academy?.sports ?? const <String>[];
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -255,10 +292,10 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
                       CircleAvatar(
                         radius: 60.r,
                         backgroundColor: AppColors.primaryContainer,
-                        child: _pickedImage != null
+                        child: _pickedImageBytes != null
                             ? ClipOval(
-                                child: Image.file(
-                                  File(_pickedImage!.path),
+                                child: Image.memory(
+                                  _pickedImageBytes!,
                                   width: 120.r,
                                   height: 120.r,
                                   fit: BoxFit.cover,
@@ -396,6 +433,35 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
 
               Gap(16.h),
 
+              // Sport (multi-sport academies only)
+              if (isMultiSport) ...[
+                _buildLabel('الرياضة'),
+                Gap(6.h),
+                DropdownButtonFormField<String>(
+                  initialValue:
+                      sports.contains(_selectedSport) ? _selectedSport : null,
+                  decoration: _inputDecoration(hint: 'اختر الرياضة'),
+                  items: sports
+                      .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                      .toList(),
+                  onChanged: (val) => setState(() => _selectedSport = val),
+                  validator: (v) => v == null ? AppStrings.required : null,
+                ),
+                Gap(16.h),
+              ],
+
+              // Attendance days (optional)
+              _buildLabel('أيام الحضور (اختياري)'),
+              Gap(6.h),
+              MultiSelectChips(
+                options: SportsConstants.weekDays,
+                selected: _selectedAttendanceDays,
+                onChanged: (days) =>
+                    setState(() => _selectedAttendanceDays = days),
+              ),
+
+              Gap(16.h),
+
               // Parent job (optional)
               _buildLabel('${AppStrings.parentJob} (اختياري)'),
               Gap(6.h),
@@ -416,6 +482,22 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return AppStrings.required;
                   if (v.trim().length < 9) return 'رقم الهاتف غير صحيح';
+                  return null;
+                },
+              ),
+
+              Gap(16.h),
+
+              // Player phone (optional)
+              _buildLabel('${AppStrings.playerPhone} (اختياري)'),
+              Gap(6.h),
+              TextFormField(
+                controller: _playerPhoneController,
+                keyboardType: TextInputType.phone,
+                decoration: _inputDecoration(hint: '05XXXXXXXX'),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return null; // optional
+                  if (v.trim().length < 7) return 'رقم الهاتف غير صحيح';
                   return null;
                 },
               ),

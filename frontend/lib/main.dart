@@ -1,13 +1,21 @@
 import 'package:basketball_academy/core/di/injection_container.dart';
 import 'package:basketball_academy/core/router/app_router.dart';
 import 'package:basketball_academy/core/theme/app_theme.dart';
+import 'package:basketball_academy/core/web/url_strategy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Use clean path-based URLs on web (e.g. /players) instead of #/players.
+  // No-op on non-web platforms.
+  configureUrlStrategy();
+
+  await initializeDateFormatting('ar', null);
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -43,7 +51,7 @@ class BasketballAcademyApp extends ConsumerWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp.router(
-          title: 'Basketball Academy Manager',
+          title: 'nosait academy',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
