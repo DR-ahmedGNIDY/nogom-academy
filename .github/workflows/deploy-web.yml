@@ -1,5 +1,13 @@
 name: Deploy Flutter Web to Vercel
 
+# Vercel's native Git integration for this project is intentionally
+# disconnected (`vercel git disconnect`). Building Flutter from source on
+# Vercel's own build container runs out of memory, and — worse — its
+# zero-config "build" of an unsupported framework silently produces an empty
+# deployment that raced against and overwrote the real one here, causing a
+# live 404. This workflow is now the *only* thing that builds and deploys
+# this project; do not reconnect Git in the Vercel dashboard.
+
 on:
   push:
     branches: [main]
