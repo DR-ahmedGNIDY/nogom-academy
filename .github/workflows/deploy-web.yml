@@ -55,6 +55,7 @@ jobs:
 
       - name: Assemble Vercel Build Output (v3) from build/web
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
@@ -65,13 +66,7 @@ jobs:
           # the Build Output API (v3) structure ourselves and deploying with
           # --prebuilt makes Vercel skip its build step entirely and publish
           # these exact files.
-          #
-          # Link the project by writing .vercel/project.json directly instead
-          # of running `vercel pull` — pull also fetches project settings and
-          # env vars, which needs broader token scope than a deploy-only
-          # token has, and isn't needed here since we already know the IDs.
-          mkdir -p .vercel
-          printf '{"orgId":"%s","projectId":"%s"}' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
           rm -rf .vercel/output
           mkdir -p .vercel/output/static
           cp -r build/web/. .vercel/output/static/
