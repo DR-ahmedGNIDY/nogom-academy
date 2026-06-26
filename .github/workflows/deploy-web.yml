@@ -33,6 +33,15 @@ jobs:
       - name: Build web
         run: flutter build web --release --no-wasm-dry-run
 
+      - name: Verify build output
+        run: |
+          test -s build/web/index.html || { echo "::error::build/web/index.html missing or empty — aborting deploy"; exit 1; }
+          test -s build/web/main.dart.js || { echo "::error::build/web/main.dart.js missing or empty — aborting deploy"; exit 1; }
+          test -s build/web/flutter.js || { echo "::error::build/web/flutter.js missing or empty — aborting deploy"; exit 1; }
+          test -d build/web/assets || { echo "::error::build/web/assets/ missing — aborting deploy"; exit 1; }
+          echo "Build output verified ($(du -sh build/web | cut -f1)):"
+          ls -la build/web
+
       - name: Install Vercel CLI
         run: npm install --global vercel
 
