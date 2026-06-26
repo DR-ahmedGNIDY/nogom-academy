@@ -53,9 +53,40 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel
 
-      - name: Deploy prebuilt build/web to Vercel (production)
+      - name: Assemble Vercel Build Output (v3) from build/web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy build/web --prod --yes --token="$VERCEL_TOKEN"
+        run: |
+          # `vercel deploy build/web` (without --prebuilt) re-runs Vercel's own
+          # zero-config build against the uploaded folder using the project's
+          # framework settings. Since build/web has no package.json, that
+          # build silently produces an empty deployment -> live 404. Building
+          # the Build Output API (v3) structure ourselves and deploying with
+          # --prebuilt makes Vercel skip its build step entirely and publish
+          # these exact files.
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          rm -rf .vercel/output
+          mkdir -p .vercel/output/static
+          cp -r build/web/. .vercel/output/static/
+          cat > .vercel/output/config.json <<'EOF'
+          {
+            "version": 3,
+            "routes": [
+              { "handle": "filesystem" },
+              { "src": "/(.*)", "dest": "/index.html" }
+            ]
+          }
+          EOF
+
+      - name: Verify Build Output assembled correctly
+        run: |
+          test -s .vercel/output/static/index.html || { echo "::error::.vercel/output/static/index.html missing"; exit 1; }
+          test -s .vercel/output/static/main.dart.js || { echo "::error::.vercel/output/static/main.dart.js missing"; exit 1; }
+          test -s .vercel/output/config.json || { echo "::error::.vercel/output/config.json missing"; exit 1; }
+
+      - name: Deploy prebuilt output to Vercel (production)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy --prebuilt --prod --yes --token="$VERCEL_TOKEN"
