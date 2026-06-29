@@ -30,7 +30,7 @@
     </queries>
 
     <application
-        android:label="nosait academy"
+        android:label="أكاديمية نجوم المستقبل"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:requestLegacyExternalStorage="true">

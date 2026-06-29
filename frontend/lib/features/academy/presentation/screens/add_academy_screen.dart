@@ -57,7 +57,7 @@ class _AddAcademyScreenState extends ConsumerState<AddAcademyScreen> {
 
     if (_selectedSports.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('يجب اختيار رياضة واحدة على الأقل'),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
@@ -90,7 +90,7 @@ class _AddAcademyScreenState extends ConsumerState<AddAcademyScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('تم إضافة الأكاديمية بنجاح'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
@@ -127,7 +127,7 @@ class _AddAcademyScreenState extends ConsumerState<AddAcademyScreen> {
                       borderRadius: BorderRadius.circular(20.r),
                     ),
                     child: Icon(
-                      Icons.sports_basketball,
+                      Icons.sports_soccer,
                       color: AppColors.primary,
                       size: 40.sp,
                     ),
@@ -297,7 +297,7 @@ class _AddAcademyScreenState extends ConsumerState<AddAcademyScreen> {
                         : () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.grey700,
-                      side: const BorderSide(color: AppColors.grey300),
+                      side: BorderSide(color: AppColors.grey300),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14.r),
                       ),

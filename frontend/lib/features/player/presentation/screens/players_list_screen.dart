@@ -202,11 +202,11 @@ class _PlayersListScreenState extends ConsumerState<PlayersListScreen> {
                     EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: const BorderSide(color: AppColors.grey200),
+                  borderSide: BorderSide(color: AppColors.grey200),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: const BorderSide(color: AppColors.grey200),
+                  borderSide: BorderSide(color: AppColors.grey200),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
@@ -762,7 +762,7 @@ class _EmptyState extends StatelessWidget {
           Icon(
             hasSearch
                 ? Icons.search_off_outlined
-                : Icons.sports_basketball_outlined,
+                : Icons.sports_soccer_outlined,
             size: 80.sp,
             color: AppColors.grey300,
           ),

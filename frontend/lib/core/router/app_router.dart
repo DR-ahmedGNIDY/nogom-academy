@@ -15,6 +15,8 @@ import 'package:basketball_academy/features/user/presentation/screens/users_list
 import 'package:basketball_academy/features/staff/presentation/screens/staff_list_screen.dart';
 import 'package:basketball_academy/features/payroll/presentation/screens/payroll_list_screen.dart';
 import 'package:basketball_academy/features/expenses/presentation/screens/expenses_list_screen.dart';
+import 'package:basketball_academy/features/matches/presentation/screens/matches_list_screen.dart';
+import 'package:basketball_academy/features/reports/presentation/screens/financial_reports_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,6 +42,8 @@ class AppRoutes {
   static const String staffList = '/academies/:id/staff';
   static const String payrollList = '/academies/:id/payroll';
   static const String expensesList = '/academies/:id/expenses';
+  static const String matchesList = '/academies/:id/matches';
+  static const String financialReports = '/academies/:id/financial-reports';
   static const String notifications = '/notifications';
   static const String accountSettings = '/account-settings';
 }
@@ -84,6 +88,24 @@ class _RouterNotifier extends ChangeNotifier {
           allowedPrefixes.any((prefix) => loc.startsWith(prefix));
       if (!isAllowed && academyId != null) {
         return AppRoutes.playersList.replaceFirst(':id', academyId);
+      }
+    }
+
+    // قسم "الإدارة" (الأكاديميات/الموظفون/الرواتب/المصروفات) مقصور على
+    // super_admin فقط — يُمنع المشرف ومدير الأكاديمية من الوصول إليه حتى
+    // عبر روابط مباشرة.
+    if (user != null && user.isSuperAdmin != true) {
+      final isAdminOnlyRoute = loc == AppRoutes.academyList ||
+          loc.contains('/staff') ||
+          loc.contains('/payroll') ||
+          loc.contains('/expenses') ||
+          loc.contains('/financial-reports') ||
+          loc.contains('/users');
+      if (isAdminOnlyRoute) {
+        final academyId = user.academyId;
+        return academyId != null
+            ? AppRoutes.playersList.replaceFirst(':id', academyId)
+            : AppRoutes.home;
       }
     }
     return null;
@@ -200,6 +222,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final academyId = state.pathParameters['id']!;
           return ExpensesListScreen(academyId: academyId);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.matchesList,
+        builder: (context, state) {
+          final academyId = state.pathParameters['id']!;
+          return MatchesListScreen(academyId: academyId);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.financialReports,
+        builder: (context, state) {
+          final academyId = state.pathParameters['id']!;
+          return FinancialReportsScreen(academyId: academyId);
         },
       ),
       GoRoute(

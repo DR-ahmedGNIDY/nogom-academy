@@ -33,7 +33,7 @@ const createUserValidators = [
     .isMongoId().withMessage('معرف الأكاديمية غير صحيح'),
   body('role')
     .optional()
-    .isIn(['academy_admin', 'admin']).withMessage('الدور غير صحيح'),
+    .isIn(['supervisor', 'academy_admin', 'admin']).withMessage('الدور غير صحيح'),
 ];
 
 const updateUserValidators = [

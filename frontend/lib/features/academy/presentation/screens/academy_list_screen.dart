@@ -128,7 +128,7 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.sports_basketball_outlined,
+          Icon(Icons.sports_soccer_outlined,
               size: 80.sp, color: AppColors.grey300),
           Gap(16.h),
           Text(
@@ -245,7 +245,7 @@ class _AcademyCard extends StatelessWidget {
   }
 
   Widget _defaultLogo() {
-    return Icon(Icons.sports_basketball,
+    return Icon(Icons.sports_soccer,
         color: AppColors.primary, size: 28.sp);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:basketball_academy/core/constants/app_strings.dart';
 import 'package:basketball_academy/core/di/injection_container.dart';
 import 'package:basketball_academy/core/router/app_router.dart';
 import 'package:basketball_academy/core/theme/app_theme.dart';
@@ -51,11 +52,9 @@ class BasketballAcademyApp extends ConsumerWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp.router(
-          title: 'nosait academy',
+          title: AppStrings.appNameEn,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.light,
           routerConfig: router,
           builder: (context, widget) {
             return Directionality(

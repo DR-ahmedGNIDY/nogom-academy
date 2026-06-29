@@ -23,7 +23,7 @@ class _StaffListScreenState extends ConsumerState<StaffListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(staffProvider.notifier).load();
+      ref.read(staffProvider.notifier).load(academyId: widget.academyId);
     });
   }
 
@@ -35,7 +35,7 @@ class _StaffListScreenState extends ConsumerState<StaffListScreen> {
         content: Text('هل تريد حذف الموظف "${staff.fullName}"؟'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('إلغاء')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('حذف', style: TextStyle(color: AppColors.error))),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text('حذف', style: TextStyle(color: AppColors.error))),
         ],
       ),
     );

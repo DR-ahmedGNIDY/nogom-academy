@@ -29,7 +29,7 @@ class CommunicationSection extends StatelessWidget {
     final opened = await WhatsAppUtils.open(phone, message: message);
     if (!opened && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(AppStrings.whatsappNotInstalled),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
@@ -83,7 +83,7 @@ class CommunicationSection extends StatelessWidget {
             if (player.playerPhone != null &&
                 player.playerPhone!.isNotEmpty) ...[
               _ActionButton(
-                icon: Icons.sports_basketball_outlined,
+                icon: Icons.sports_soccer_outlined,
                 label: AppStrings.contactPlayer,
                 color: const Color(0xFF25D366),
                 onTap: () => _launchPhone(

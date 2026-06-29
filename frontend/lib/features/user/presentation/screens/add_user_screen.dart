@@ -151,7 +151,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('تم إضافة المستخدم بنجاح'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
@@ -302,11 +302,25 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                         }),
                       ),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: _RoleCard(
+                        value: 'supervisor',
+                        label: 'مشرف',
+                        icon: Icons.sports_outlined,
+                        selectedValue: _selectedRole,
+                        onTap: (v) => setState(() {
+                          _selectedRole = v;
+                          // ignore: avoid_print
+                          assert(() { print('[RoleCard] selected="$_selectedRole"'); return true; }());
+                        }),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
                     Expanded(
                       child: _RoleCard(
                         value: 'admin',
-                        label: 'مشرف',
+                        label: 'صلاحية محدودة',
                         icon: Icons.manage_accounts_outlined,
                         selectedValue: _selectedRole,
                         onTap: (v) => setState(() {
@@ -362,7 +376,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                         _isLoading ? null : () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.grey700,
-                      side: const BorderSide(color: AppColors.grey300),
+                      side: BorderSide(color: AppColors.grey300),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14.r),
                       ),

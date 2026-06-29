@@ -3,6 +3,7 @@ import 'package:basketball_academy/features/expenses/data/models/expense_model.d
 
 abstract class ExpenseRemoteDatasource {
   Future<({List<ExpenseModel> expenses, int total, int page, int totalPages})> getExpenses({
+    required String academyId,
     String? category,
     String? startDate,
     String? endDate,
@@ -11,6 +12,7 @@ abstract class ExpenseRemoteDatasource {
   });
 
   Future<ExpenseModel> createExpense({
+    required String academyId,
     required String name,
     String? description,
     required double amount,
@@ -30,6 +32,7 @@ abstract class ExpenseRemoteDatasource {
   Future<void> deleteExpense(String id);
 
   Future<({double totalAmount, int totalCount, Map<String, dynamic> byCategory})> getReport({
+    required String academyId,
     required String startDate,
     required String endDate,
   });
@@ -41,6 +44,7 @@ class ExpenseRemoteDatasourceImpl implements ExpenseRemoteDatasource {
 
   @override
   Future<({List<ExpenseModel> expenses, int total, int page, int totalPages})> getExpenses({
+    required String academyId,
     String? category,
     String? startDate,
     String? endDate,
@@ -48,6 +52,7 @@ class ExpenseRemoteDatasourceImpl implements ExpenseRemoteDatasource {
     int limit = 50,
   }) async {
     final response = await _apiClient.get('/expenses', queryParameters: {
+      'academyId': academyId,
       'page': page,
       'limit': limit,
       if (category != null) 'category': category,
@@ -67,6 +72,7 @@ class ExpenseRemoteDatasourceImpl implements ExpenseRemoteDatasource {
 
   @override
   Future<ExpenseModel> createExpense({
+    required String academyId,
     required String name,
     String? description,
     required double amount,
@@ -74,6 +80,7 @@ class ExpenseRemoteDatasourceImpl implements ExpenseRemoteDatasource {
     required String category,
   }) async {
     final response = await _apiClient.post('/expenses', data: {
+      'academyId': academyId,
       'name': name,
       if (description != null) 'description': description,
       'amount': amount,
@@ -111,10 +118,12 @@ class ExpenseRemoteDatasourceImpl implements ExpenseRemoteDatasource {
 
   @override
   Future<({double totalAmount, int totalCount, Map<String, dynamic> byCategory})> getReport({
+    required String academyId,
     required String startDate,
     required String endDate,
   }) async {
     final response = await _apiClient.get('/expenses/report', queryParameters: {
+      'academyId': academyId,
       'startDate': startDate,
       'endDate': endDate,
     });

@@ -103,7 +103,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   Future<void> _generateReport(int index) async {
     if (_selectedAcademyId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('يرجى اختيار الأكاديمية أولاً'),
           backgroundColor: AppColors.warning,
           behavior: SnackBarBehavior.floating,
@@ -189,7 +189,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             ),
             Gap(8.h),
             ListTile(
-              leading: const Icon(Icons.preview_outlined,
+              leading: Icon(Icons.preview_outlined,
                   color: AppColors.secondary),
               title: const Text(AppStrings.previewReport),
               onTap: () async {
@@ -218,7 +218,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   Future<void> _generateExcel(int index) async {
     if (_selectedAcademyId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('يرجى اختيار الأكاديمية أولاً'),
           backgroundColor: AppColors.warning,
           behavior: SnackBarBehavior.floating,

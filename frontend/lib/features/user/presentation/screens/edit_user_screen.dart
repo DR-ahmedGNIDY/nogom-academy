@@ -78,7 +78,7 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('تم تحديث المستخدم بنجاح'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
@@ -214,7 +214,7 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
                         _isLoading ? null : () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.grey700,
-                      side: const BorderSide(color: AppColors.grey300),
+                      side: BorderSide(color: AppColors.grey300),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14.r),
                       ),

@@ -6,7 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class PayrollState {
   final List<PayrollEntity> records;
   final String? month;
-  const PayrollState({this.records = const [], this.month});
+  final String? academyId;
+  const PayrollState({this.records = const [], this.month, this.academyId});
 }
 
 class PayrollNotifier extends AsyncNotifier<PayrollState> {
@@ -15,23 +16,24 @@ class PayrollNotifier extends AsyncNotifier<PayrollState> {
   @override
   Future<PayrollState> build() async => const PayrollState();
 
-  Future<void> load(String month) async {
+  Future<void> load({required String academyId, required String month}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final result = await _repo.getPayrollList(month: month);
-      return result.fold((failure) => throw Exception(failure.message), (data) => PayrollState(records: data, month: month));
+      final result = await _repo.getPayrollList(academyId: academyId, month: month);
+      return result.fold((failure) => throw Exception(failure.message), (data) => PayrollState(records: data, month: month, academyId: academyId));
     });
   }
 
   Future<void> refresh() async {
     final month = state.valueOrNull?.month;
-    if (month != null) await load(month);
+    final academyId = state.valueOrNull?.academyId;
+    if (month != null && academyId != null) await load(academyId: academyId, month: month);
   }
 
-  Future<String?> generate(String month) async {
-    final result = await _repo.generatePayroll(month: month);
+  Future<String?> generate({required String academyId, required String month}) async {
+    final result = await _repo.generatePayroll(academyId: academyId, month: month);
     return result.fold((failure) => failure.message, (_) {
-      load(month);
+      load(academyId: academyId, month: month);
       return null;
     });
   }
@@ -54,10 +56,10 @@ class PayrollReportNotifier extends AsyncNotifier<({List<PayrollReportRow> repor
   Future<({List<PayrollReportRow> report, double totalBaseSalary, double totalDeductions, double totalNetSalary})> build() async =>
       (report: const <PayrollReportRow>[], totalBaseSalary: 0.0, totalDeductions: 0.0, totalNetSalary: 0.0);
 
-  Future<void> load(String month) async {
+  Future<void> load(String academyId, String month) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final result = await _repo.getPayrollReport(month);
+      final result = await _repo.getPayrollReport(academyId, month);
       return result.fold((failure) => throw Exception(failure.message), (data) => data);
     });
   }

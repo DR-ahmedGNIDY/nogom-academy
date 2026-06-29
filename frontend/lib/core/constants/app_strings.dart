@@ -2,7 +2,8 @@ class AppStrings {
   AppStrings._();
 
   // App
-  static const String appName = 'nosait academy';
+  static const String appName = 'أكاديمية نجوم المستقبل';
+  static const String appNameEn = 'Future Stars Academy';
   static const String loading = 'جاري التحميل...';
   static const String cancel = 'إلغاء';
   static const String confirm = 'تأكيد';

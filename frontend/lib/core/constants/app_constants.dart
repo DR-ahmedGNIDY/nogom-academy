@@ -26,7 +26,7 @@ class AppConstants {
   static const int maxEvaluationScore = 10;
 
   // App Info
-  static const String appName = 'Basketball Academy Manager';
+  static const String appName = 'Future Stars Academy';
   static const String appVersion = '1.0.0';
   static const int appBuild = 1;
 

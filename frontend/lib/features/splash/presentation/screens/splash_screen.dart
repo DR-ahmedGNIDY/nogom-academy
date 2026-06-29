@@ -85,14 +85,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.sports_basketball,
-                        size: 80.sp,
-                        color: AppColors.white,
+                      Image.asset(
+                        'assets/images/logo.png',
+                        width: 110.w,
+                        height: 110.w,
+                        fit: BoxFit.contain,
                       ),
                       Gap(20.h),
                       Text(
-                        'Basketball Academy Manager',
+                        'أكاديمية نجوم المستقبل',
                         style: TextStyle(
                           fontFamily: 'Cairo',
                           fontSize: 22.sp,

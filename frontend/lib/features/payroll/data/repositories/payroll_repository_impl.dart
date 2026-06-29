@@ -30,23 +30,23 @@ class PayrollRepositoryImpl implements PayrollRepository {
   }
 
   @override
-  Future<Either<Failure, List<PayrollEntity>>> generatePayroll({required String month, String? staffId, bool force = false}) {
-    return _wrap(() async => (await _remoteDatasource.generatePayroll(month: month, staffId: staffId, force: force))
+  Future<Either<Failure, List<PayrollEntity>>> generatePayroll({required String academyId, required String month, String? staffId, bool force = false}) {
+    return _wrap(() async => (await _remoteDatasource.generatePayroll(academyId: academyId, month: month, staffId: staffId, force: force))
         .map((m) => m.toEntity())
         .toList());
   }
 
   @override
-  Future<Either<Failure, List<PayrollEntity>>> getPayrollList({String? month, String? staffId, String? status}) {
-    return _wrap(() async => (await _remoteDatasource.getPayrollList(month: month, staffId: staffId, status: status))
+  Future<Either<Failure, List<PayrollEntity>>> getPayrollList({required String academyId, String? month, String? staffId, String? status}) {
+    return _wrap(() async => (await _remoteDatasource.getPayrollList(academyId: academyId, month: month, staffId: staffId, status: status))
         .map((m) => m.toEntity())
         .toList());
   }
 
   @override
-  Future<Either<Failure, ({List<PayrollReportRow> report, double totalBaseSalary, double totalDeductions, double totalNetSalary})>> getPayrollReport(String month) {
+  Future<Either<Failure, ({List<PayrollReportRow> report, double totalBaseSalary, double totalDeductions, double totalNetSalary})>> getPayrollReport(String academyId, String month) {
     return _wrap(() async {
-      final result = await _remoteDatasource.getPayrollReport(month);
+      final result = await _remoteDatasource.getPayrollReport(academyId, month);
       return (
         report: result.report.map((m) => m.toEntity()).toList(),
         totalBaseSalary: result.totalBaseSalary,

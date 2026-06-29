@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 
 abstract class ExpenseRepository {
   Future<Either<Failure, ({List<ExpenseEntity> expenses, int total, int page, int totalPages})>> getExpenses({
+    required String academyId,
     String? category,
     String? startDate,
     String? endDate,
@@ -12,6 +13,7 @@ abstract class ExpenseRepository {
   });
 
   Future<Either<Failure, ExpenseEntity>> createExpense({
+    required String academyId,
     required String name,
     String? description,
     required double amount,
@@ -30,5 +32,5 @@ abstract class ExpenseRepository {
 
   Future<Either<Failure, void>> deleteExpense(String id);
 
-  Future<Either<Failure, ExpenseReportData>> getReport({required String startDate, required String endDate});
+  Future<Either<Failure, ExpenseReportData>> getReport({required String academyId, required String startDate, required String endDate});
 }

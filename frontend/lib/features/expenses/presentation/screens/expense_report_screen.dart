@@ -15,7 +15,8 @@ import 'package:printing/printing.dart';
 enum _Period { today, thisWeek, thisMonth, custom }
 
 class ExpenseReportScreen extends ConsumerStatefulWidget {
-  const ExpenseReportScreen({super.key});
+  final String academyId;
+  const ExpenseReportScreen({super.key, required this.academyId});
 
   @override
   ConsumerState<ExpenseReportScreen> createState() => _ExpenseReportScreenState();
@@ -59,6 +60,7 @@ class _ExpenseReportScreenState extends ConsumerState<ExpenseReportScreen> {
 
   void _load() {
     ref.read(expenseReportProvider.notifier).load(
+          academyId: widget.academyId,
           startDate: DateFormat('yyyy-MM-dd').format(_startDate),
           endDate: DateFormat('yyyy-MM-dd').format(_endDate),
         );
@@ -84,6 +86,7 @@ class _ExpenseReportScreenState extends ConsumerState<ExpenseReportScreen> {
   Future<List<ExpenseEntity>> _fetchRows() async {
     final repo = sl<ExpenseRepository>();
     final result = await repo.getExpenses(
+      academyId: widget.academyId,
       startDate: DateFormat('yyyy-MM-dd').format(_startDate),
       endDate: DateFormat('yyyy-MM-dd').format(_endDate),
       limit: 500,

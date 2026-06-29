@@ -42,7 +42,7 @@ class _CustomMessageScreenState extends State<CustomMessageScreen> {
 
     if (!opened) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(AppStrings.whatsappNotInstalled),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
@@ -107,20 +107,20 @@ class _CustomMessageScreenState extends State<CustomMessageScreen> {
                 textAlignVertical: TextAlignVertical.top,
                 decoration: InputDecoration(
                   hintText: AppStrings.writeMessageHere,
-                  hintStyle: const TextStyle(color: AppColors.grey400),
+                  hintStyle: TextStyle(color: AppColors.grey400),
                   filled: true,
                   fillColor: AppColors.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16.r),
-                    borderSide: const BorderSide(color: AppColors.grey200),
+                    borderSide: BorderSide(color: AppColors.grey200),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16.r),
-                    borderSide: const BorderSide(color: AppColors.grey200),
+                    borderSide: BorderSide(color: AppColors.grey200),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16.r),
-                    borderSide: const BorderSide(color: AppColors.success, width: 1.5),
+                    borderSide: BorderSide(color: AppColors.success, width: 1.5),
                   ),
                   contentPadding: EdgeInsets.all(16.r),
                 ),

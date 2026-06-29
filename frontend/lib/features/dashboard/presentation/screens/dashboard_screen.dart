@@ -41,7 +41,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         );
         return;
       }
-      if (user.isAcademyAdmin) {
+      if (user.isAcademyLevel) {
         ref.read(dashboardProvider.notifier).refresh(academyId: user.academyId);
       } else {
         ref.read(dashboardProvider.notifier).refresh();
@@ -136,11 +136,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
                 Gap(20.h),
 
-                // Quick actions for academy_admin (not admin)
-                if (!isSuperAdmin && user?.isAcademyAdmin == true && user?.academyId != null) ...[
+                // Quick actions for academy-level roles (supervisor / academy_admin)
+                if (!isSuperAdmin && user?.isAcademyLevel == true && user?.isAdmin != true && user?.academyId != null) ...[
                   const _SectionTitle(title: 'الإجراءات السريعة'),
                   Gap(8.h),
-                  _QuickActionsGrid(academyId: user!.academyId!),
+                  _QuickActionsGrid(
+                    academyId: user!.academyId!,
+                    canManageOperations: user.canManageOperations,
+                  ),
+                  Gap(20.h),
+                ],
+
+                // قسم "الإدارة" — Super Admin فقط
+                if (isSuperAdmin) ...[
+                  const _SectionTitle(title: 'الإدارة'),
+                  Gap(8.h),
+                  _AdminSection(
+                    selectedAcademyId: _selectedAcademyId,
+                    onAcademySelected: (id) =>
+                        setState(() => _selectedAcademyId = id),
+                  ),
                   Gap(20.h),
                 ],
 
@@ -205,37 +220,43 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-// ─── Quick Actions Grid (academy_admin only) ─────────────────────────────────
+// ─── Quick Actions Grid (academy-level roles: supervisor / academy_admin) ───
+// لا تحتوي على الموظفين/الرواتب/المصروفات/التقارير المالية — هذه أصبحت
+// مقصورة على قسم "الإدارة" الخاص بالسوبر أدمن فقط (_AdminSection).
 
 class _QuickActionsGrid extends StatelessWidget {
   final String academyId;
-  const _QuickActionsGrid({required this.academyId});
+  /// true لـ super_admin/supervisor — يملكون صلاحية كاملة على المباريات
+  /// والاشتراكات. مدير الأكاديمية (academy_admin) يرى فقط دون هذه الصلاحية.
+  final bool canManageOperations;
+
+  const _QuickActionsGrid({
+    required this.academyId,
+    required this.canManageOperations,
+  });
 
   @override
   Widget build(BuildContext context) {
     final items = [
       _QuickActionItem(
-        icon: Icons.sports_basketball_outlined,
+        icon: Icons.sports_soccer_outlined,
         label: AppStrings.players,
         color: AppColors.primary,
         onTap: () => context.push(
           AppRoutes.playersList.replaceFirst(':id', academyId),
         ),
       ),
-      _QuickActionItem(
-        icon: Icons.card_membership_outlined,
-        label: AppStrings.subscriptions,
-        color: AppColors.secondary,
-        onTap: () => context.push(
-          AppRoutes.playersList.replaceFirst(':id', academyId),
+      // الاشتراكات: لمدير الأكاديمية فقط من داخل صفحة اللاعب (عرض فقط) —
+      // لا تظهر كإجراء سريع مستقل إلا للمشرف/السوبر أدمن.
+      if (canManageOperations)
+        _QuickActionItem(
+          icon: Icons.card_membership_outlined,
+          label: AppStrings.subscriptions,
+          color: AppColors.secondary,
+          onTap: () => context.push(
+            AppRoutes.playersList.replaceFirst(':id', academyId),
+          ),
         ),
-      ),
-      _QuickActionItem(
-        icon: Icons.bar_chart_outlined,
-        label: AppStrings.reports,
-        color: AppColors.success,
-        onTap: () => context.push(AppRoutes.reports),
-      ),
       _QuickActionItem(
         icon: Icons.qr_code_scanner,
         label: 'الحضور والانصراف',
@@ -247,27 +268,11 @@ class _QuickActionsGrid extends StatelessWidget {
         ),
       ),
       _QuickActionItem(
-        icon: Icons.badge_outlined,
-        label: 'الإدارة والموظفين',
-        color: AppColors.secondary,
+        icon: Icons.sports_soccer,
+        label: canManageOperations ? 'المباريات' : 'المباريات (عرض فقط)',
+        color: AppColors.primary,
         onTap: () => context.push(
-          AppRoutes.staffList.replaceFirst(':id', academyId),
-        ),
-      ),
-      _QuickActionItem(
-        icon: Icons.payments_outlined,
-        label: 'الرواتب',
-        color: AppColors.success,
-        onTap: () => context.push(
-          AppRoutes.payrollList.replaceFirst(':id', academyId),
-        ),
-      ),
-      _QuickActionItem(
-        icon: Icons.receipt_long_outlined,
-        label: 'المصروفات',
-        color: AppColors.error,
-        onTap: () => context.push(
-          AppRoutes.expensesList.replaceFirst(':id', academyId),
+          AppRoutes.matchesList.replaceFirst(':id', academyId),
         ),
       ),
     ];
@@ -280,6 +285,160 @@ class _QuickActionsGrid extends StatelessWidget {
       mainAxisSpacing: 12.h,
       childAspectRatio: 1.1,
       children: items,
+    );
+  }
+}
+
+// ─── Admin Section ("الإدارة") — Super Admin only ───────────────────────────
+// يضم اختيار الأكاديمية ثم الإجراءات الإدارية المالية (الموظفون/الرواتب/
+// المصروفات/التقارير المالية) الخاصة بها — هذه لا تظهر لأي دور آخر.
+
+class _AdminSection extends ConsumerWidget {
+  final String? selectedAcademyId;
+  final ValueChanged<String?> onAcademySelected;
+
+  const _AdminSection({
+    required this.selectedAcademyId,
+    required this.onAcademySelected,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final academiesAsync = ref.watch(academiesProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(12.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: academiesAsync.when(
+            loading: () => const LinearProgressIndicator(),
+            error: (err, _) => Text(
+              err.toString(),
+              style: TextStyle(color: AppColors.error, fontSize: 12.sp),
+            ),
+            data: (academies) => DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isExpanded: true,
+                value: academies.any((a) => a.id == selectedAcademyId)
+                    ? selectedAcademyId
+                    : null,
+                hint: Text(
+                  'اختر أكاديمية لإدارتها',
+                  style: TextStyle(fontSize: 13.sp, color: AppColors.grey500),
+                ),
+                items: academies
+                    .map((a) => DropdownMenuItem(
+                          value: a.id,
+                          child: Text(a.name, style: TextStyle(fontSize: 13.sp)),
+                        ))
+                    .toList(),
+                onChanged: onAcademySelected,
+              ),
+            ),
+          ),
+        ),
+        Gap(12.h),
+        if (selectedAcademyId != null) ...[
+          GridView.count(
+            crossAxisCount: 3,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisSpacing: 12.w,
+            mainAxisSpacing: 12.h,
+            childAspectRatio: 1.1,
+            children: [
+              _QuickActionItem(
+                icon: Icons.sports_soccer_outlined,
+                label: AppStrings.players,
+                color: AppColors.primary,
+                onTap: () => context.push(
+                  AppRoutes.playersList.replaceFirst(':id', selectedAcademyId!),
+                ),
+              ),
+              _QuickActionItem(
+                icon: Icons.card_membership_outlined,
+                label: AppStrings.subscriptions,
+                color: AppColors.secondary,
+                onTap: () => context.push(
+                  AppRoutes.playersList.replaceFirst(':id', selectedAcademyId!),
+                ),
+              ),
+              _QuickActionItem(
+                icon: Icons.sports_soccer,
+                label: 'المباريات',
+                color: AppColors.primary,
+                onTap: () => context.push(
+                  AppRoutes.matchesList.replaceFirst(':id', selectedAcademyId!),
+                ),
+              ),
+              _QuickActionItem(
+                icon: Icons.qr_code_scanner,
+                label: 'الحضور والانصراف',
+                color: AppColors.primaryDark,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        AttendanceHubScreen(academyId: selectedAcademyId!),
+                  ),
+                ),
+              ),
+              _QuickActionItem(
+                icon: Icons.badge_outlined,
+                label: 'الموظفون',
+                color: AppColors.secondary,
+                onTap: () => context.push(
+                  AppRoutes.staffList.replaceFirst(':id', selectedAcademyId!),
+                ),
+              ),
+              _QuickActionItem(
+                icon: Icons.payments_outlined,
+                label: 'الرواتب',
+                color: AppColors.success,
+                onTap: () => context.push(
+                  AppRoutes.payrollList.replaceFirst(':id', selectedAcademyId!),
+                ),
+              ),
+              _QuickActionItem(
+                icon: Icons.receipt_long_outlined,
+                label: 'المصروفات',
+                color: AppColors.error,
+                onTap: () => context.push(
+                  AppRoutes.expensesList.replaceFirst(':id', selectedAcademyId!),
+                ),
+              ),
+              _QuickActionItem(
+                icon: Icons.account_balance_outlined,
+                label: 'التقارير المالية',
+                color: AppColors.warning,
+                onTap: () => context.push(
+                  AppRoutes.financialReports
+                      .replaceFirst(':id', selectedAcademyId!),
+                ),
+              ),
+              _QuickActionItem(
+                icon: Icons.manage_accounts_outlined,
+                label: AppStrings.academyUsers,
+                color: AppColors.secondary,
+                onTap: () => context.push(
+                  AppRoutes.academyUsers.replaceFirst(':id', selectedAcademyId!),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }
@@ -359,7 +518,7 @@ class _SportsGrid extends StatelessWidget {
 
   static const _icons = [
     Icons.sports_soccer,
-    Icons.sports_basketball,
+    Icons.sports_soccer,
     Icons.sports_volleyball,
     Icons.sports_handball,
     Icons.pool,
@@ -455,7 +614,7 @@ class _WelcomeCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [AppColors.secondary, AppColors.secondaryLight],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -471,7 +630,7 @@ class _WelcomeCard extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.sports_basketball,
+              Icons.sports_soccer,
               color: AppColors.primary,
               size: 28.r,
             ),
@@ -556,7 +715,7 @@ class _StatsGrid extends StatelessWidget {
       _StatCardData(
         label: AppStrings.activePlayers,
         value: '${s?.activePlayers ?? 0}',
-        icon: Icons.sports_basketball,
+        icon: Icons.sports_soccer,
         color: AppColors.success,
         bg: AppColors.successLight,
       ),
@@ -585,8 +744,8 @@ class _StatsGrid extends StatelessWidget {
         label: AppStrings.monthlyRevenue,
         value: _formatCurrency(s?.currentMonthRevenue ?? 0),
         icon: Icons.trending_up,
-        color: const Color(0xFF2563EB),
-        bg: const Color(0xFFEFF6FF),
+        color: AppColors.secondary,
+        bg: AppColors.secondaryContainer,
       ),
       _StatCardData(
         label: 'اشتراكات جديدة',
@@ -599,8 +758,8 @@ class _StatsGrid extends StatelessWidget {
         label: 'تجديدات',
         value: '${s?.renewalsCount ?? 0}',
         icon: Icons.refresh,
-        color: const Color(0xFF2563EB),
-        bg: const Color(0xFFEFF6FF),
+        color: AppColors.secondary,
+        bg: AppColors.secondaryContainer,
       ),
       _StatCardData(
         label: 'متوسط التقييم',
@@ -812,7 +971,7 @@ class _RevenueChart extends StatelessWidget {
                       gridData: FlGridData(
                         show: true,
                         drawVerticalLine: false,
-                        getDrawingHorizontalLine: (value) => const FlLine(
+                        getDrawingHorizontalLine: (value) => FlLine(
                           color: AppColors.grey200,
                           strokeWidth: 1,
                         ),
@@ -1012,7 +1171,7 @@ class _PlayersByBirthYearChart extends StatelessWidget {
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
-              getDrawingHorizontalLine: (v) => const FlLine(color: AppColors.grey200, strokeWidth: 1),
+              getDrawingHorizontalLine: (v) => FlLine(color: AppColors.grey200, strokeWidth: 1),
             ),
             borderData: FlBorderData(show: false),
             barGroups: data.asMap().entries.map((entry) {
@@ -1201,9 +1360,9 @@ class _ActivityTile extends StatelessWidget {
       case 'EVALUATION':
         return (Icons.assessment_outlined, AppColors.warning, AppColors.warningLight);
       case 'ATTENDANCE':
-        return (Icons.qr_code_scanner, const Color(0xFF2D9748), AppColors.successLight);
+        return (Icons.qr_code_scanner, Color(0xFF2D9748), AppColors.successLight);
       case 'USER':
-        return (Icons.manage_accounts_outlined, const Color(0xFF2563EB), const Color(0xFFEFF6FF));
+        return (Icons.manage_accounts_outlined, AppColors.secondary, AppColors.secondaryContainer);
       case 'ACADEMY':
         return (Icons.business_outlined, AppColors.secondary, AppColors.secondaryContainer);
       default:

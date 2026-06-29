@@ -113,6 +113,12 @@ app.get('/health', (req, res) => {
   });
 });
 
+// لا يعرض أي أسرار — فقط حالة الاتصال بقاعدة البيانات (للمراقبة الاستباقية).
+app.get('/api/v1/db-health', (req, res) => {
+  const health = connectDB.getDbHealth();
+  res.status(health.readyState === 1 ? 200 : 503).json(health);
+});
+
 app.use('/api/v1/auth/login', loginLimiter);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/academies', academyRoutes);

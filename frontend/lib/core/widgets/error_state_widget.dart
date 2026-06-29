@@ -26,7 +26,7 @@ class ErrorStateWidget extends StatelessWidget {
             Container(
               width: 80.w,
               height: 80.w,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.errorLight,
                 shape: BoxShape.circle,
               ),

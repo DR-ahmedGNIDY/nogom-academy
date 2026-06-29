@@ -30,6 +30,7 @@ class _StaffAttendanceReportScreenState extends ConsumerState<StaffAttendanceRep
 
   void _load() {
     ref.read(staffAttendanceReportProvider.notifier).loadReport(
+          academyId: widget.academyId,
           startDate: DateFormat('yyyy-MM-dd').format(_startDate),
           endDate: DateFormat('yyyy-MM-dd').format(_endDate),
         );

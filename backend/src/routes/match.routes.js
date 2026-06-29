@@ -10,12 +10,17 @@ const {
   removePlayerFromMatch,
   logReminder,
 } = require('../controllers/match.controller');
-const { protect } = require('../middleware/auth.middleware');
+const { protect, restrictTo } = require('../middleware/auth.middleware');
 const validate = require('../middleware/validate');
 
 const router = express.Router();
 
 router.use(protect);
+
+// إنشاء/تعديل/حذف المباريات وإدارة لاعبيها وتذكيراتها مقصور على
+// super_admin و supervisor — مدير الأكاديمية (academy_admin) يرى المباريات
+// فقط (GET) دون أي صلاحية تعديل.
+const canManageMatches = restrictTo('super_admin', 'supervisor');
 
 const createValidators = [
   body('name')
@@ -54,21 +59,21 @@ router.get('/', getMatches);
 router.get('/:id', getMatchById);
 
 // POST   /matches
-router.post('/', createValidators, validate, createMatch);
+router.post('/', canManageMatches, createValidators, validate, createMatch);
 
 // PUT    /matches/:id
-router.put('/:id', updateValidators, validate, updateMatch);
+router.put('/:id', canManageMatches, updateValidators, validate, updateMatch);
 
 // DELETE /matches/:id
-router.delete('/:id', deleteMatch);
+router.delete('/:id', canManageMatches, deleteMatch);
 
 // POST   /matches/:id/players
-router.post('/:id/players', addPlayersValidators, validate, addPlayersToMatch);
+router.post('/:id/players', canManageMatches, addPlayersValidators, validate, addPlayersToMatch);
 
 // DELETE /matches/:id/players/:playerId
-router.delete('/:id/players/:playerId', removePlayerFromMatch);
+router.delete('/:id/players/:playerId', canManageMatches, removePlayerFromMatch);
 
 // POST   /matches/:id/reminders/:playerId
-router.post('/:id/reminders/:playerId', logReminder);
+router.post('/:id/reminders/:playerId', canManageMatches, logReminder);
 
 module.exports = router;

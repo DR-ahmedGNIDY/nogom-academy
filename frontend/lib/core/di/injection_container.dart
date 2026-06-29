@@ -77,6 +77,16 @@ import 'package:basketball_academy/features/payroll/domain/repositories/payroll_
 import 'package:basketball_academy/features/expenses/data/datasources/expense_remote_datasource.dart';
 import 'package:basketball_academy/features/expenses/data/repositories/expense_repository_impl.dart';
 import 'package:basketball_academy/features/expenses/domain/repositories/expense_repository.dart';
+import 'package:basketball_academy/features/matches/data/datasources/matches_remote_datasource.dart';
+import 'package:basketball_academy/features/matches/data/repositories/matches_repository_impl.dart';
+import 'package:basketball_academy/features/matches/domain/repositories/matches_repository.dart';
+import 'package:basketball_academy/features/matches/domain/usecases/add_players_to_match_usecase.dart';
+import 'package:basketball_academy/features/matches/domain/usecases/create_match_usecase.dart';
+import 'package:basketball_academy/features/matches/domain/usecases/delete_match_usecase.dart';
+import 'package:basketball_academy/features/matches/domain/usecases/get_match_usecase.dart';
+import 'package:basketball_academy/features/matches/domain/usecases/get_matches_usecase.dart';
+import 'package:basketball_academy/features/matches/domain/usecases/log_reminder_usecase.dart';
+import 'package:basketball_academy/features/matches/domain/usecases/remove_player_from_match_usecase.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 
@@ -327,5 +337,34 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<ExpenseRepository>(
     () => ExpenseRepositoryImpl(remoteDatasource: sl<ExpenseRemoteDatasource>()),
+  );
+
+  // Matches
+  sl.registerLazySingleton<MatchesRemoteDatasource>(
+    () => MatchesRemoteDatasourceImpl(sl<ApiClient>()),
+  );
+  sl.registerLazySingleton<MatchesRepository>(
+    () => MatchesRepositoryImpl(remoteDatasource: sl<MatchesRemoteDatasource>()),
+  );
+  sl.registerLazySingleton<GetMatchesUsecase>(
+    () => GetMatchesUsecase(sl<MatchesRepository>()),
+  );
+  sl.registerLazySingleton<GetMatchUsecase>(
+    () => GetMatchUsecase(sl<MatchesRepository>()),
+  );
+  sl.registerLazySingleton<CreateMatchUsecase>(
+    () => CreateMatchUsecase(sl<MatchesRepository>()),
+  );
+  sl.registerLazySingleton<AddPlayersToMatchUsecase>(
+    () => AddPlayersToMatchUsecase(sl<MatchesRepository>()),
+  );
+  sl.registerLazySingleton<RemovePlayerFromMatchUsecase>(
+    () => RemovePlayerFromMatchUsecase(sl<MatchesRepository>()),
+  );
+  sl.registerLazySingleton<LogReminderUsecase>(
+    () => LogReminderUsecase(sl<MatchesRepository>()),
+  );
+  sl.registerLazySingleton<DeleteMatchUsecase>(
+    () => DeleteMatchUsecase(sl<MatchesRepository>()),
   );
 }

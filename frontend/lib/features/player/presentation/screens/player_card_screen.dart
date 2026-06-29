@@ -227,11 +227,11 @@ class _CardView extends StatelessWidget {
                                     data: qrData,
                                     version: QrVersions.auto,
                                     backgroundColor: AppColors.white,
-                                    eyeStyle: const QrEyeStyle(
+                                    eyeStyle: QrEyeStyle(
                                       eyeShape: QrEyeShape.square,
                                       color: AppColors.secondary,
                                     ),
-                                    dataModuleStyle: const QrDataModuleStyle(
+                                    dataModuleStyle: QrDataModuleStyle(
                                       dataModuleShape: QrDataModuleShape.square,
                                       color: AppColors.secondary,
                                     ),

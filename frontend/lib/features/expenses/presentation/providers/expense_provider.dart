@@ -6,11 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ExpensesState {
   final List<ExpenseEntity> expenses;
   final int total;
+  final String? academyId;
   final String? categoryFilter;
   final String? startDate;
   final String? endDate;
 
-  const ExpensesState({this.expenses = const [], this.total = 0, this.categoryFilter, this.startDate, this.endDate});
+  const ExpensesState({this.expenses = const [], this.total = 0, this.academyId, this.categoryFilter, this.startDate, this.endDate});
 }
 
 class ExpensesNotifier extends AsyncNotifier<ExpensesState> {
@@ -19,26 +20,28 @@ class ExpensesNotifier extends AsyncNotifier<ExpensesState> {
   @override
   Future<ExpensesState> build() async => const ExpensesState();
 
-  Future<void> load({String? category, String? startDate, String? endDate}) async {
+  Future<void> load({required String academyId, String? category, String? startDate, String? endDate}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final result = await _repo.getExpenses(category: category, startDate: startDate, endDate: endDate, limit: 200);
+      final result = await _repo.getExpenses(academyId: academyId, category: category, startDate: startDate, endDate: endDate, limit: 200);
       return result.fold(
         (failure) => throw Exception(failure.message),
-        (data) => ExpensesState(expenses: data.expenses, total: data.total, categoryFilter: category, startDate: startDate, endDate: endDate),
+        (data) => ExpensesState(expenses: data.expenses, total: data.total, academyId: academyId, categoryFilter: category, startDate: startDate, endDate: endDate),
       );
     });
   }
 
   Future<void> refresh() async {
     final s = state.valueOrNull;
-    await load(category: s?.categoryFilter, startDate: s?.startDate, endDate: s?.endDate);
+    final academyId = s?.academyId;
+    if (academyId == null) return;
+    await load(academyId: academyId, category: s?.categoryFilter, startDate: s?.startDate, endDate: s?.endDate);
   }
 
-  Future<String?> createExpense({required String name, String? description, required double amount, required String date, required String category}) async {
-    final result = await _repo.createExpense(name: name, description: description, amount: amount, date: date, category: category);
+  Future<String?> createExpense({required String academyId, required String name, String? description, required double amount, required String date, required String category}) async {
+    final result = await _repo.createExpense(academyId: academyId, name: name, description: description, amount: amount, date: date, category: category);
     return result.fold((failure) => failure.message, (_) {
-      refresh();
+      load(academyId: academyId, category: state.valueOrNull?.categoryFilter, startDate: state.valueOrNull?.startDate, endDate: state.valueOrNull?.endDate);
       return null;
     });
   }
@@ -68,10 +71,10 @@ class ExpenseReportNotifier extends AsyncNotifier<ExpenseReportData?> {
   @override
   Future<ExpenseReportData?> build() async => null;
 
-  Future<void> load({required String startDate, required String endDate}) async {
+  Future<void> load({required String academyId, required String startDate, required String endDate}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final result = await _repo.getReport(startDate: startDate, endDate: endDate);
+      final result = await _repo.getReport(academyId: academyId, startDate: startDate, endDate: endDate);
       return result.fold((failure) => throw Exception(failure.message), (data) => data);
     });
   }

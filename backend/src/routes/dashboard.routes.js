@@ -13,7 +13,7 @@ const {
 } = require('../controllers/dashboard.controller');
 
 router.use(protect);
-router.use(restrictTo('super_admin', 'academy_admin'));
+router.use(restrictTo('super_admin', 'supervisor', 'academy_admin'));
 
 router.get('/stats', getDashboardStats);
 router.get('/revenue-by-month', getRevenueByMonth);

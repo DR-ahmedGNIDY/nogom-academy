@@ -110,7 +110,7 @@ class _AddSubscriptionScreenState
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(AppStrings.subscriptionAdded),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,

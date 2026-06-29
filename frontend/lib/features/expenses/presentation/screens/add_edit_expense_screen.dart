@@ -8,8 +8,9 @@ import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 
 class AddEditExpenseScreen extends ConsumerStatefulWidget {
+  final String academyId;
   final ExpenseEntity? expense;
-  const AddEditExpenseScreen({super.key, this.expense});
+  const AddEditExpenseScreen({super.key, required this.academyId, this.expense});
 
   bool get isEdit => expense != null;
 
@@ -74,6 +75,7 @@ class _AddEditExpenseScreenState extends ConsumerState<AddEditExpenseScreen> {
           );
     } else {
       error = await ref.read(expensesProvider.notifier).createExpense(
+            academyId: widget.academyId,
             name: _nameController.text.trim(),
             description: description,
             amount: amount,
@@ -181,8 +183,8 @@ class _AddEditExpenseScreenState extends ConsumerState<AddEditExpenseScreen> {
       fillColor: AppColors.white,
       suffixIcon: suffixIcon != null ? Icon(suffixIcon, color: AppColors.grey400) : null,
       contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: AppColors.grey200)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: AppColors.grey200)),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: BorderSide(color: AppColors.grey200)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: BorderSide(color: AppColors.grey200)),
       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: AppColors.primary, width: 1.5)),
     );
   }

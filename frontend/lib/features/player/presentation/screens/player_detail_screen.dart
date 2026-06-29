@@ -13,6 +13,7 @@ import 'package:basketball_academy/features/subscription/domain/entities/subscri
 import 'package:basketball_academy/features/subscription/presentation/providers/subscription_provider.dart';
 import 'package:basketball_academy/features/subscription/presentation/screens/add_subscription_screen.dart';
 import 'package:basketball_academy/features/subscription/presentation/screens/player_subscription_history_screen.dart';
+import 'package:basketball_academy/features/subscription/presentation/screens/record_payment_screen.dart';
 import 'package:basketball_academy/features/subscription/presentation/screens/renew_subscription_screen.dart';
 import 'package:basketball_academy/features/whatsapp/presentation/widgets/communication_section.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -114,10 +115,21 @@ class _PlayerDetailContent extends ConsumerWidget {
     required this.academyId,
   });
 
-  Widget _buildSubscriptionActionsCard(
-      BuildContext context, PlayerEntity player, bool canEdit) {
-    if (!canEdit) return const SizedBox.shrink();
+  /// قسم "الاشتراكات" داخل صفحة اللاعب — يظهر معلومات الاشتراك الحالي لكل من
+  /// يملك صلاحية الوصول إلى أكاديمية اللاعب (Super Admin/Supervisor/Manager)،
+  /// لكن أزرار الإضافة/التجديد/تسجيل الدفعة تظهر فقط لـ Super Admin/Supervisor
+  /// — مدير الأكاديمية (Manager) يرى الاشتراك دون صلاحية التعديل.
+  Widget _buildSubscriptionCard(
+    BuildContext context,
+    WidgetRef ref,
+    PlayerEntity player,
+    bool canView,
+    bool canManageSubscriptions,
+  ) {
+    if (!canView) return const SizedBox.shrink();
     final theme = Theme.of(context);
+    final subsAsync = ref.watch(playerSubscriptionsProvider(player.id));
+
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 0.w),
       shape: RoundedRectangleBorder(
@@ -137,6 +149,65 @@ class _PlayerDetailContent extends ConsumerWidget {
               ),
             ),
             Gap(12.h),
+            subsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, __) => Text('لا يوجد اشتراكات',
+                  style: TextStyle(color: AppColors.grey500)),
+              data: (subs) {
+                if (subs.isEmpty) {
+                  return Text('لا يوجد اشتراك حالياً',
+                      style: TextStyle(color: AppColors.grey500));
+                }
+                final latest =
+                    [...subs]..sort((a, b) => b.endDate.compareTo(a.endDate));
+                final current = latest.first;
+                final dateFormat = DateFormat('dd/MM/yyyy', 'ar');
+                return Container(
+                  padding: EdgeInsets.all(12.r),
+                  decoration: BoxDecoration(
+                    color: AppColors.grey50,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _SubRow(label: 'الاشتراك الحالي', value: current.typeLabel),
+                      _SubRow(
+                          label: 'تاريخ البداية',
+                          value: dateFormat.format(current.startDate)),
+                      _SubRow(
+                          label: 'تاريخ النهاية',
+                          value: dateFormat.format(current.endDate)),
+                      _SubRow(label: 'الحالة', value: current.statusLabel),
+                      _SubRow(
+                          label: 'المبلغ',
+                          value: current.amount.toStringAsFixed(0)),
+                      _SubRow(label: 'المتبقي', value: '0'),
+                      if (canManageSubscriptions) ...[
+                        Gap(10.h),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(double.infinity, 40.h),
+                          ),
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => RecordPaymentScreen(
+                                playerId: player.id,
+                                playerName: player.fullName,
+                                subscription: current,
+                              ),
+                            ),
+                          ),
+                          icon: const Icon(Icons.payments_outlined),
+                          label: const Text('تسجيل دفعة'),
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
+            Gap(12.h),
             Row(
               children: [
                 Expanded(
@@ -154,42 +225,46 @@ class _PlayerDetailContent extends ConsumerWidget {
                     label: const Text('سجل الاشتراكات'),
                   ),
                 ),
-                Gap(8.w),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => AddSubscriptionScreen(
-                          playerId: player.id,
-                          academyId: academyId,
-                          playerName: player.fullName,
+                if (canManageSubscriptions) ...[
+                  Gap(8.w),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => AddSubscriptionScreen(
+                            playerId: player.id,
+                            academyId: academyId,
+                            playerName: player.fullName,
+                          ),
                         ),
                       ),
+                      icon: const Icon(Icons.add_card),
+                      label: const Text('اشتراك جديد'),
                     ),
-                    icon: const Icon(Icons.add_card),
-                    label: const Text('اشتراك جديد'),
                   ),
-                ),
+                ],
               ],
             ),
-            Gap(8.h),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.secondary,
-                foregroundColor: AppColors.white,
-              ),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => RenewSubscriptionScreen(
-                    playerId: player.id,
-                    academyId: academyId,
-                    playerName: player.fullName,
+            if (canManageSubscriptions) ...[
+              Gap(8.h),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.secondary,
+                  foregroundColor: AppColors.white,
+                ),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => RenewSubscriptionScreen(
+                      playerId: player.id,
+                      academyId: academyId,
+                      playerName: player.fullName,
+                    ),
                   ),
                 ),
+                icon: const Icon(Icons.refresh),
+                label: const Text('تجديد الاشتراك'),
               ),
-              icon: const Icon(Icons.refresh),
-              label: const Text('تجديد الاشتراك'),
-            ),
+            ],
           ],
         ),
       ),
@@ -240,7 +315,7 @@ class _PlayerDetailContent extends ConsumerWidget {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(AppStrings.playerDeleted),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
@@ -258,6 +333,8 @@ class _PlayerDetailContent extends ConsumerWidget {
     final isAcademyLevelSame =
         !isSuperAdmin && authState?.user?.academyId == academyId;
     final canEdit = isSuperAdmin || isAcademyLevelSame;
+    final canManageSubscriptions =
+        canEdit && (authState?.user?.canManageOperations ?? false);
 
     final dateFormat = DateFormat('dd/MM/yyyy', 'ar');
 
@@ -283,7 +360,7 @@ class _PlayerDetailContent extends ConsumerWidget {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: AppColors.error),
+              icon: Icon(Icons.delete_outline, color: AppColors.error),
               tooltip: AppStrings.delete,
               onPressed: () => _confirmDelete(context, ref),
             ),
@@ -514,8 +591,9 @@ class _PlayerDetailContent extends ConsumerWidget {
                   ),
 
                   Gap(16.h),
-                  // Subscription Actions Card
-                  _buildSubscriptionActionsCard(context, player, canEdit),
+                  // Subscription Card
+                  _buildSubscriptionCard(
+                      context, ref, player, canEdit, canManageSubscriptions),
 
                   Gap(8.h),
                   _LatestEvaluationCard(
@@ -853,7 +931,7 @@ class _LatestEvaluationCard extends ConsumerWidget {
                   ),
                 ),
                 Gap(8.h),
-                const Divider(height: 1, color: AppColors.grey100),
+                Divider(height: 1, color: AppColors.grey100),
                 Gap(8.h),
                 _scoreRow(context, AppStrings.fitnessScore, evaluation.fitness),
                 _scoreRow(context, AppStrings.basicSkillsScore,
@@ -1003,6 +1081,32 @@ class _StatusChip extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Subscription summary row
+// ---------------------------------------------------------------------------
+
+class _SubRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _SubRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 3.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(fontSize: 12.sp, color: AppColors.grey500)),
+          Text(value,
+              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700, color: AppColors.grey800)),
         ],
       ),
     );

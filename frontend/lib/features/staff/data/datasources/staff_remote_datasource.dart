@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 
 abstract class StaffRemoteDatasource {
   Future<({List<StaffModel> staff, int total, int page, int totalPages})> getStaff({
+    required String academyId,
     String? search,
     bool showInactive = false,
     int page = 1,
@@ -18,6 +19,7 @@ abstract class StaffRemoteDatasource {
   Future<StaffModel> getStaffById(String id);
 
   Future<StaffModel> createStaff({
+    required String academyId,
     required String fullName,
     required String position,
     required String phone,
@@ -56,12 +58,14 @@ abstract class StaffRemoteDatasource {
   });
 
   Future<List<StaffAttendanceModel>> getAttendanceHistory({
+    required String academyId,
     String? staffId,
     String? startDate,
     String? endDate,
   });
 
   Future<List<StaffAttendanceReportRowModel>> getAttendanceReport({
+    required String academyId,
     required String startDate,
     required String endDate,
   });
@@ -73,12 +77,14 @@ class StaffRemoteDatasourceImpl implements StaffRemoteDatasource {
 
   @override
   Future<({List<StaffModel> staff, int total, int page, int totalPages})> getStaff({
+    required String academyId,
     String? search,
     bool showInactive = false,
     int page = 1,
     int limit = 50,
   }) async {
     final response = await _apiClient.get('/staff', queryParameters: {
+      'academyId': academyId,
       'page': page,
       'limit': limit,
       if (search != null && search.isNotEmpty) 'search': search,
@@ -132,6 +138,7 @@ class StaffRemoteDatasourceImpl implements StaffRemoteDatasource {
 
   @override
   Future<StaffModel> createStaff({
+    required String academyId,
     required String fullName,
     required String position,
     required String phone,
@@ -144,18 +151,21 @@ class StaffRemoteDatasourceImpl implements StaffRemoteDatasource {
     required double deductionValue,
     String? photoPath,
   }) async {
-    final fields = _buildFields(
-      fullName: fullName,
-      position: position,
-      phone: phone,
-      email: email,
-      hireDate: hireDate,
-      baseSalary: baseSalary,
-      workingDays: workingDays,
-      monthlyAttendanceTarget: monthlyAttendanceTarget,
-      deductionType: deductionType,
-      deductionValue: deductionValue,
-    );
+    final fields = {
+      'academyId': academyId,
+      ..._buildFields(
+        fullName: fullName,
+        position: position,
+        phone: phone,
+        email: email,
+        hireDate: hireDate,
+        baseSalary: baseSalary,
+        workingDays: workingDays,
+        monthlyAttendanceTarget: monthlyAttendanceTarget,
+        deductionType: deductionType,
+        deductionValue: deductionValue,
+      ),
+    };
 
     if (photoPath != null) {
       final formMap = Map<String, dynamic>.from(fields);
@@ -249,11 +259,13 @@ class StaffRemoteDatasourceImpl implements StaffRemoteDatasource {
 
   @override
   Future<List<StaffAttendanceModel>> getAttendanceHistory({
+    required String academyId,
     String? staffId,
     String? startDate,
     String? endDate,
   }) async {
     final response = await _apiClient.get('/staff-attendance', queryParameters: {
+      'academyId': academyId,
       if (staffId != null) 'staffId': staffId,
       if (startDate != null) 'startDate': startDate,
       if (endDate != null) 'endDate': endDate,
@@ -266,10 +278,12 @@ class StaffRemoteDatasourceImpl implements StaffRemoteDatasource {
 
   @override
   Future<List<StaffAttendanceReportRowModel>> getAttendanceReport({
+    required String academyId,
     required String startDate,
     required String endDate,
   }) async {
     final response = await _apiClient.get('/staff-attendance/report', queryParameters: {
+      'academyId': academyId,
       'startDate': startDate,
       'endDate': endDate,
     });

@@ -32,6 +32,7 @@ class StaffRepositoryImpl implements StaffRepository {
 
   @override
   Future<Either<Failure, ({List<StaffEntity> staff, int total, int page, int totalPages})>> getStaff({
+    required String academyId,
     String? search,
     bool showInactive = false,
     int page = 1,
@@ -39,7 +40,7 @@ class StaffRepositoryImpl implements StaffRepository {
   }) {
     return _wrap(() async {
       final result = await _remoteDatasource.getStaff(
-        search: search, showInactive: showInactive, page: page, limit: limit,
+        academyId: academyId, search: search, showInactive: showInactive, page: page, limit: limit,
       );
       return (
         staff: result.staff.map((m) => m.toEntity()).toList(),
@@ -57,6 +58,7 @@ class StaffRepositoryImpl implements StaffRepository {
 
   @override
   Future<Either<Failure, StaffEntity>> createStaff({
+    required String academyId,
     required String fullName,
     required String position,
     required String phone,
@@ -70,6 +72,7 @@ class StaffRepositoryImpl implements StaffRepository {
     String? photoPath,
   }) {
     return _wrap(() async => (await _remoteDatasource.createStaff(
+          academyId: academyId,
           fullName: fullName,
           position: position,
           phone: phone,
@@ -137,12 +140,13 @@ class StaffRepositoryImpl implements StaffRepository {
 
   @override
   Future<Either<Failure, List<StaffAttendanceEntity>>> getAttendanceHistory({
+    required String academyId,
     String? staffId,
     String? startDate,
     String? endDate,
   }) {
     return _wrap(() async => (await _remoteDatasource.getAttendanceHistory(
-          staffId: staffId, startDate: startDate, endDate: endDate,
+          academyId: academyId, staffId: staffId, startDate: startDate, endDate: endDate,
         ))
             .map((m) => m.toEntity())
             .toList());
@@ -150,11 +154,12 @@ class StaffRepositoryImpl implements StaffRepository {
 
   @override
   Future<Either<Failure, List<StaffAttendanceReportRow>>> getAttendanceReport({
+    required String academyId,
     required String startDate,
     required String endDate,
   }) {
     return _wrap(() async => (await _remoteDatasource.getAttendanceReport(
-          startDate: startDate, endDate: endDate,
+          academyId: academyId, startDate: startDate, endDate: endDate,
         ))
             .map((m) => m.toEntity())
             .toList());

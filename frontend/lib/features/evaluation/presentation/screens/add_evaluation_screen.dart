@@ -104,7 +104,7 @@ class _AddEvaluationScreenState extends ConsumerState<AddEvaluationScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(AppStrings.evaluationAdded),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,

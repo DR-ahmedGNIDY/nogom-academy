@@ -110,7 +110,7 @@ class _RenewSubscriptionScreenState
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(AppStrings.subscriptionRenewed),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,

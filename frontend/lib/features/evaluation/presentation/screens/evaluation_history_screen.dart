@@ -85,7 +85,7 @@ class _EvaluationHistoryScreenState
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(AppStrings.evaluationDeleted),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
@@ -300,7 +300,7 @@ class _EvaluationCard extends StatelessWidget {
                 ),
               ),
               Gap(12.h),
-              const Divider(height: 1, color: AppColors.grey100),
+              Divider(height: 1, color: AppColors.grey100),
               Gap(8.h),
               // Score rows
               _ScoreRow(

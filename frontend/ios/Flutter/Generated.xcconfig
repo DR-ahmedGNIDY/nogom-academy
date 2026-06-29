@@ -1,7 +1,7 @@
 // This is a generated file; do not edit or check into version control.
 FLUTTER_ROOT=G:\program\flutter
-FLUTTER_APPLICATION_PATH=G:\basketball_academy_phase1_final\basketball_academy\frontend
-FLUTTER_FRAMEWORK_SWIFT_PACKAGE_PATH=G:\basketball_academy_phase1_final\basketball_academy\frontend\ios\Flutter\ephemeral\Packages\.packages\FlutterFramework
+FLUTTER_APPLICATION_PATH=G:\nogom academy\frontend
+FLUTTER_FRAMEWORK_SWIFT_PACKAGE_PATH=G:\nogom academy\frontend\ios\Flutter\ephemeral\Packages\.packages\FlutterFramework
 COCOAPODS_PARALLEL_CODE_SIGN=true
 FLUTTER_TARGET=lib\main.dart
 FLUTTER_BUILD_DIR=build

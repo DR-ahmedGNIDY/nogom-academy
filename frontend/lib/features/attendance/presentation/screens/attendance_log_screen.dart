@@ -214,7 +214,7 @@ class _LogTile extends StatelessWidget {
           Container(
             width: 44.w,
             height: 44.w,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppColors.primaryContainer,
             ),

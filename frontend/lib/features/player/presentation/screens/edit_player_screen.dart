@@ -197,7 +197,7 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_birthDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('الرجاء اختيار تاريخ الميلاد'),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
@@ -210,7 +210,7 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
     final isMultiSport = academy?.isMultiSport ?? false;
     if (isMultiSport && (_selectedSport == null || _selectedSport!.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('الرجاء اختيار الرياضة'),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
@@ -254,7 +254,7 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(AppStrings.playerUpdated),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
@@ -578,11 +578,11 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
           EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.r),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.grey200),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.r),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.grey200),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.r),
@@ -590,11 +590,11 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.r),
-        borderSide: const BorderSide(color: AppColors.error),
+        borderSide: BorderSide(color: AppColors.error),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.r),
-        borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        borderSide: BorderSide(color: AppColors.error, width: 1.5),
       ),
     );
   }

@@ -22,7 +22,8 @@ class _PayrollListScreenState extends ConsumerState<PayrollListScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => ref.read(payrollProvider.notifier).load(_month));
+    WidgetsBinding.instance.addPostFrameCallback((_) =>
+        ref.read(payrollProvider.notifier).load(academyId: widget.academyId, month: _month));
   }
 
   Future<void> _pickMonth() async {
@@ -37,13 +38,13 @@ class _PayrollListScreenState extends ConsumerState<PayrollListScreen> {
     );
     if (picked != null) {
       setState(() => _month = DateFormat('yyyy-MM').format(picked));
-      ref.read(payrollProvider.notifier).load(_month);
+      ref.read(payrollProvider.notifier).load(academyId: widget.academyId, month: _month);
     }
   }
 
   Future<void> _generate() async {
     setState(() => _isGenerating = true);
-    final error = await ref.read(payrollProvider.notifier).generate(_month);
+    final error = await ref.read(payrollProvider.notifier).generate(academyId: widget.academyId, month: _month);
     if (!mounted) return;
     setState(() => _isGenerating = false);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -81,7 +82,7 @@ class _PayrollListScreenState extends ConsumerState<PayrollListScreen> {
             icon: const Icon(Icons.bar_chart_outlined),
             tooltip: 'تقرير الرواتب',
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => PayrollReportScreen(month: _month)),
+              MaterialPageRoute(builder: (_) => PayrollReportScreen(academyId: widget.academyId, month: _month)),
             ),
           ),
         ],

@@ -159,7 +159,7 @@ class _AcademyDetailContent extends ConsumerWidget {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('تم حذف الأكاديمية بنجاح'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
@@ -192,7 +192,7 @@ class _AcademyDetailContent extends ConsumerWidget {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: AppColors.error),
+              icon: Icon(Icons.delete_outline, color: AppColors.error),
               tooltip: AppStrings.delete,
               onPressed: () => _confirmDelete(context, ref),
             ),
@@ -354,7 +354,7 @@ class _AcademyDetailContent extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(10.r),
                                 ),
                                 child: Icon(
-                                  Icons.sports_basketball_outlined,
+                                  Icons.sports_soccer_outlined,
                                   color: AppColors.primary,
                                   size: 20.sp,
                                 ),
@@ -538,7 +538,7 @@ class _DefaultLogoIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Icon(
-      Icons.sports_basketball,
+      Icons.sports_soccer,
       color: AppColors.primary,
       size: 48.sp,
     );

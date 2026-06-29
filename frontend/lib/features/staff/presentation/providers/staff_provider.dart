@@ -8,13 +8,15 @@ class StaffState {
   final List<StaffEntity> staff;
   final int total;
   final String? search;
+  final String? academyId;
 
-  const StaffState({this.staff = const [], this.total = 0, this.search});
+  const StaffState({this.staff = const [], this.total = 0, this.search, this.academyId});
 
-  StaffState copyWith({List<StaffEntity>? staff, int? total, String? search}) => StaffState(
+  StaffState copyWith({List<StaffEntity>? staff, int? total, String? search, String? academyId}) => StaffState(
         staff: staff ?? this.staff,
         total: total ?? this.total,
         search: search ?? this.search,
+        academyId: academyId ?? this.academyId,
       );
 }
 
@@ -24,20 +26,25 @@ class StaffNotifier extends AsyncNotifier<StaffState> {
   @override
   Future<StaffState> build() async => const StaffState();
 
-  Future<void> load({String? search}) async {
+  Future<void> load({required String academyId, String? search}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final result = await _repo.getStaff(search: search, limit: 200);
+      final result = await _repo.getStaff(academyId: academyId, search: search, limit: 200);
       return result.fold(
         (failure) => throw Exception(failure.message),
-        (data) => StaffState(staff: data.staff, total: data.total, search: search),
+        (data) => StaffState(staff: data.staff, total: data.total, search: search, academyId: academyId),
       );
     });
   }
 
-  Future<void> refresh() => load(search: state.valueOrNull?.search);
+  Future<void> refresh() {
+    final academyId = state.valueOrNull?.academyId;
+    if (academyId == null) return Future.value();
+    return load(academyId: academyId, search: state.valueOrNull?.search);
+  }
 
   Future<String?> createStaff({
+    required String academyId,
     required String fullName,
     required String position,
     required String phone,
@@ -51,13 +58,13 @@ class StaffNotifier extends AsyncNotifier<StaffState> {
     String? photoPath,
   }) async {
     final result = await _repo.createStaff(
-      fullName: fullName, position: position, phone: phone, email: email,
+      academyId: academyId, fullName: fullName, position: position, phone: phone, email: email,
       hireDate: hireDate, baseSalary: baseSalary, workingDays: workingDays,
       monthlyAttendanceTarget: monthlyAttendanceTarget, deductionType: deductionType,
       deductionValue: deductionValue, photoPath: photoPath,
     );
     return result.fold((failure) => failure.message, (_) {
-      refresh();
+      load(academyId: academyId, search: state.valueOrNull?.search);
       return null;
     });
   }
@@ -109,10 +116,12 @@ class StaffAttendanceNotifier extends AsyncNotifier<List<StaffAttendanceEntity>>
   @override
   Future<List<StaffAttendanceEntity>> build() async => const [];
 
-  Future<void> loadHistory({String? staffId, String? startDate, String? endDate}) async {
+  Future<void> loadHistory({required String academyId, String? staffId, String? startDate, String? endDate}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final result = await _repo.getAttendanceHistory(staffId: staffId, startDate: startDate, endDate: endDate);
+      final result = await _repo.getAttendanceHistory(
+        academyId: academyId, staffId: staffId, startDate: startDate, endDate: endDate,
+      );
       return result.fold((failure) => throw Exception(failure.message), (data) => data);
     });
   }
@@ -137,10 +146,10 @@ class StaffAttendanceReportNotifier extends AsyncNotifier<List<StaffAttendanceRe
   @override
   Future<List<StaffAttendanceReportRow>> build() async => const [];
 
-  Future<void> loadReport({required String startDate, required String endDate}) async {
+  Future<void> loadReport({required String academyId, required String startDate, required String endDate}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final result = await _repo.getAttendanceReport(startDate: startDate, endDate: endDate);
+      final result = await _repo.getAttendanceReport(academyId: academyId, startDate: startDate, endDate: endDate);
       return result.fold((failure) => throw Exception(failure.message), (data) => data);
     });
   }

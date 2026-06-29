@@ -11,7 +11,7 @@ const validate = require('../middleware/validate');
 const router = express.Router();
 
 router.use(protect);
-router.use(restrictTo('academy_admin'));
+router.use(restrictTo('super_admin'));
 
 const markValidators = [
   body('staffId').notEmpty().withMessage('معرّف الموظف مطلوب').isMongoId().withMessage('معرّف الموظف غير صحيح'),

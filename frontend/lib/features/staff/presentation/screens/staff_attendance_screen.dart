@@ -31,6 +31,7 @@ class _StaffAttendanceScreenState extends ConsumerState<StaffAttendanceScreen> {
     final now = DateTime.now();
     final start = DateTime(now.year, now.month, 1);
     ref.read(staffAttendanceProvider.notifier).loadHistory(
+          academyId: widget.staff.academyId,
           staffId: widget.staff.id,
           startDate: DateFormat('yyyy-MM-dd').format(start),
           endDate: DateFormat('yyyy-MM-dd').format(now),

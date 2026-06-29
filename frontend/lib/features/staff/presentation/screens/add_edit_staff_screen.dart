@@ -125,6 +125,7 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
           );
     } else {
       error = await ref.read(staffProvider.notifier).createStaff(
+            academyId: widget.academyId,
             fullName: _fullNameController.text.trim(),
             position: _positionController.text.trim(),
             phone: _phoneController.text.trim(),
@@ -333,8 +334,8 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
       fillColor: AppColors.white,
       suffixIcon: suffixIcon != null ? Icon(suffixIcon, color: AppColors.grey400) : null,
       contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: AppColors.grey200)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: AppColors.grey200)),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: BorderSide(color: AppColors.grey200)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: BorderSide(color: AppColors.grey200)),
       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: AppColors.primary, width: 1.5)),
     );
   }

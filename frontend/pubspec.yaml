@@ -1,5 +1,5 @@
 name: basketball_academy
-description: نظام إدارة أكاديمية كرة السلة
+description: نظام إدارة أكاديمية نجوم المستقبل
 publish_to: "none"
 version: 1.1.0+7
 
@@ -93,10 +93,13 @@ flutter_launcher_icons:
   ios: false
   image_path: "assets/images/app_icon.png"
   min_sdk_android: 21
-  adaptive_icon_background: "#1A2B4A"
+  adaptive_icon_background: "#0F172A"
   adaptive_icon_foreground: "assets/images/app_icon.png"
   web:
-    generate: false
+    generate: true
+    image_path: "assets/images/app_icon.png"
+    background_color: "#0F172A"
+    theme_color: "#F97316"
   windows:
     generate: false
 

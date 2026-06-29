@@ -111,7 +111,7 @@ class _UsersListScreenState extends ConsumerState<UsersListScreen> {
               children: [
                 Text(
                   'تعيين كلمة مرور جديدة للمستخدم "${user.name}"',
-                  style: const TextStyle(fontSize: 13, color: AppColors.grey600),
+                  style: TextStyle(fontSize: 13, color: AppColors.grey600),
                 ),
                 Gap(16.h),
                 TextFormField(
@@ -258,7 +258,7 @@ class _UsersListScreenState extends ConsumerState<UsersListScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('تم حذف المستخدم بنجاح'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
@@ -420,8 +420,8 @@ class _UserCard extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: AppColors.error),
-              title: const Text(
+              leading: Icon(Icons.delete_outline, color: AppColors.error),
+              title: Text(
                 'حذف المستخدم',
                 style: TextStyle(color: AppColors.error),
               ),
@@ -457,9 +457,11 @@ class _RoleBadge extends StatelessWidget {
       child: Text(
         role == 'academy_admin'
             ? 'مدير أكاديمية'
-            : role == 'admin'
+            : role == 'supervisor'
                 ? 'مشرف'
-                : 'مشرف عام',
+                : role == 'admin'
+                    ? 'صلاحية محدودة'
+                    : 'مشرف عام',
         style: TextStyle(
           fontSize: 11.sp,
           color: AppColors.secondary,

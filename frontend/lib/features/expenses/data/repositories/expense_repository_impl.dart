@@ -31,6 +31,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<Either<Failure, ({List<ExpenseEntity> expenses, int total, int page, int totalPages})>> getExpenses({
+    required String academyId,
     String? category,
     String? startDate,
     String? endDate,
@@ -38,7 +39,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
     int limit = 50,
   }) {
     return _wrap(() async {
-      final result = await _remoteDatasource.getExpenses(category: category, startDate: startDate, endDate: endDate, page: page, limit: limit);
+      final result = await _remoteDatasource.getExpenses(academyId: academyId, category: category, startDate: startDate, endDate: endDate, page: page, limit: limit);
       return (
         expenses: result.expenses.map((m) => m.toEntity()).toList(),
         total: result.total,
@@ -50,13 +51,14 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<Either<Failure, ExpenseEntity>> createExpense({
+    required String academyId,
     required String name,
     String? description,
     required double amount,
     required String date,
     required String category,
   }) {
-    return _wrap(() async => (await _remoteDatasource.createExpense(name: name, description: description, amount: amount, date: date, category: category)).toEntity());
+    return _wrap(() async => (await _remoteDatasource.createExpense(academyId: academyId, name: name, description: description, amount: amount, date: date, category: category)).toEntity());
   }
 
   @override
@@ -77,9 +79,9 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   }
 
   @override
-  Future<Either<Failure, ExpenseReportData>> getReport({required String startDate, required String endDate}) {
+  Future<Either<Failure, ExpenseReportData>> getReport({required String academyId, required String startDate, required String endDate}) {
     return _wrap(() async {
-      final result = await _remoteDatasource.getReport(startDate: startDate, endDate: endDate);
+      final result = await _remoteDatasource.getReport(academyId: academyId, startDate: startDate, endDate: endDate);
       final byCategory = <String, ({double total, int count})>{};
       result.byCategory.forEach((key, value) {
         final v = value as Map<String, dynamic>;

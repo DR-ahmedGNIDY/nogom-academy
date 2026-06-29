@@ -22,7 +22,7 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => ref.read(expensesProvider.notifier).load());
+    WidgetsBinding.instance.addPostFrameCallback((_) => ref.read(expensesProvider.notifier).load(academyId: widget.academyId));
   }
 
   Future<void> _confirmDelete(ExpenseEntity expense) async {
@@ -33,7 +33,7 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
         content: Text('هل تريد حذف "${expense.name}"؟'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('إلغاء')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('حذف', style: TextStyle(color: AppColors.error))),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text('حذف', style: TextStyle(color: AppColors.error))),
         ],
       ),
     );
@@ -59,13 +59,13 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
           IconButton(
             icon: const Icon(Icons.bar_chart_outlined),
             tooltip: 'تقرير المصروفات',
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ExpenseReportScreen())),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ExpenseReportScreen(academyId: widget.academyId))),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AddEditExpenseScreen()));
+          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => AddEditExpenseScreen(academyId: widget.academyId)));
         },
         child: const Icon(Icons.add),
       ),
@@ -99,7 +99,7 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
                       return Container(
                         decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12.r)),
                         child: ListTile(
-                          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => AddEditExpenseScreen(expense: e))),
+                          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => AddEditExpenseScreen(academyId: widget.academyId, expense: e))),
                           title: Text(e.name, style: TextStyle(fontWeight: FontWeight.w700)),
                           subtitle: Text('${e.categoryLabel} • ${e.date}'),
                           trailing: Row(
@@ -135,7 +135,7 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
         selected: selected,
         onSelected: (_) {
           setState(() => _categoryFilter = category);
-          ref.read(expensesProvider.notifier).load(category: category);
+          ref.read(expensesProvider.notifier).load(academyId: widget.academyId, category: category);
         },
         selectedColor: AppColors.primary,
         labelStyle: TextStyle(color: selected ? AppColors.white : AppColors.grey700),

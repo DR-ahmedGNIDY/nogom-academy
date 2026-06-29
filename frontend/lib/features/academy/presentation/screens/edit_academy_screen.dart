@@ -73,7 +73,7 @@ class _EditAcademyScreenState extends ConsumerState<EditAcademyScreen> {
 
     if (_selectedSports.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('يجب اختيار رياضة واحدة على الأقل'),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
@@ -107,7 +107,7 @@ class _EditAcademyScreenState extends ConsumerState<EditAcademyScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('تم تحديث الأكاديمية بنجاح'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
@@ -150,14 +150,14 @@ class _EditAcademyScreenState extends ConsumerState<EditAcademyScreen> {
                               widget.academy.logoUrl!,
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => Icon(
-                                Icons.sports_basketball,
+                                Icons.sports_soccer,
                                 color: AppColors.primary,
                                 size: 40.sp,
                               ),
                             ),
                           )
                         : Icon(
-                            Icons.sports_basketball,
+                            Icons.sports_soccer,
                             color: AppColors.primary,
                             size: 40.sp,
                           ),
@@ -327,7 +327,7 @@ class _EditAcademyScreenState extends ConsumerState<EditAcademyScreen> {
                         : () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.grey700,
-                      side: const BorderSide(color: AppColors.grey300),
+                      side: BorderSide(color: AppColors.grey300),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14.r),
                       ),

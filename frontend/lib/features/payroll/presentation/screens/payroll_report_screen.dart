@@ -9,8 +9,9 @@ import 'package:gap/gap.dart';
 import 'package:printing/printing.dart';
 
 class PayrollReportScreen extends ConsumerStatefulWidget {
+  final String academyId;
   final String month;
-  const PayrollReportScreen({super.key, required this.month});
+  const PayrollReportScreen({super.key, required this.academyId, required this.month});
 
   @override
   ConsumerState<PayrollReportScreen> createState() => _PayrollReportScreenState();
@@ -22,7 +23,8 @@ class _PayrollReportScreenState extends ConsumerState<PayrollReportScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => ref.read(payrollReportProvider.notifier).load(widget.month));
+    WidgetsBinding.instance.addPostFrameCallback((_) =>
+        ref.read(payrollReportProvider.notifier).load(widget.academyId, widget.month));
   }
 
   Future<void> _exportPdf() async {

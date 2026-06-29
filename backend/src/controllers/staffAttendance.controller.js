@@ -1,8 +1,17 @@
+const mongoose = require('mongoose');
 const StaffAttendance = require('../models/staff_attendance.model');
 const Staff = require('../models/staff.model');
 const AppError = require('../utils/AppError');
 const { sendSuccess } = require('../utils/apiResponse');
 const { logActivity } = require('../utils/activityLogger');
+
+// هذا المسار مقصور على super_admin ولا يملك academyId خاصاً به،
+// فيجب تمرير الأكاديمية المطلوبة صراحةً عبر query أو body.
+const resolveAcademyId = (req) => {
+  const academyId = req.query.academyId || req.body.academyId;
+  if (!academyId) throw new AppError('معرّف الأكاديمية مطلوب', 400);
+  return academyId;
+};
 
 // ─── POST /staff-attendance ──────────────────────────────────────────────────
 const markAttendance = async (req, res, next) => {
@@ -10,7 +19,8 @@ const markAttendance = async (req, res, next) => {
 
   const staff = await Staff.findById(staffId);
   if (!staff) return next(new AppError('الموظف غير موجود', 404));
-  if (staff.academyId.toString() !== req.user.academyId?.toString()) {
+  if (req.user.role !== 'super_admin' &&
+      staff.academyId.toString() !== req.user.academyId?.toString()) {
     return next(new AppError('ليس لديك صلاحية لتسجيل حضور هذا الموظف', 403));
   }
 
@@ -36,7 +46,7 @@ const markAttendance = async (req, res, next) => {
 
 // ─── GET /staff-attendance ───────────────────────────────────────────────────
 const getAttendanceHistory = async (req, res, next) => {
-  const filter = { academyId: req.user.academyId };
+  const filter = { academyId: resolveAcademyId(req) };
 
   if (req.query.staffId) filter.staffId = req.query.staffId;
 
@@ -57,8 +67,9 @@ const getAttendanceReport = async (req, res, next) => {
     return next(new AppError('تاريخ البداية والنهاية مطلوبان', 400));
   }
 
+  const academyId = resolveAcademyId(req);
   const matchFilter = {
-    academyId: req.user.academyId,
+    academyId: new mongoose.Types.ObjectId(academyId),
     date: { $gte: startDate, $lte: endDate },
   };
 
@@ -67,7 +78,7 @@ const getAttendanceReport = async (req, res, next) => {
     { $group: { _id: { staffId: '$staffId', status: '$status' }, count: { $sum: 1 } } },
   ]);
 
-  const staffList = await Staff.find({ academyId: req.user.academyId, isActive: true })
+  const staffList = await Staff.find({ academyId, isActive: true })
     .select('fullName position');
 
   const report = staffList.map((s) => {

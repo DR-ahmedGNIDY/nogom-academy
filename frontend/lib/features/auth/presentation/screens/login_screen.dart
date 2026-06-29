@@ -102,7 +102,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     );
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('تعذّر فتح واتساب'),
           backgroundColor: AppColors.error,
         ),
@@ -150,7 +150,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -172,8 +172,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       width: 96.w,
                       height: 96.w,
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(22.r),
                         boxShadow: [
                           BoxShadow(
                             color: AppColors.primary.withValues(alpha: 0.4),
@@ -182,10 +180,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           ),
                         ],
                       ),
-                      child: Icon(
-                        Icons.sports_basketball,
-                        size: 52.sp,
-                        color: AppColors.white,
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        fit: BoxFit.contain,
                       ),
                     ),
                     Gap(20.h),

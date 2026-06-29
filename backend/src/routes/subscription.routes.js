@@ -17,6 +17,10 @@ const router = express.Router();
 // All routes require authentication
 router.use(protect);
 
+// إنشاء/تجديد الاشتراك وتعديل الملاحظات وحذفه مقصور على super_admin و
+// supervisor — مدير الأكاديمية (academy_admin) يرى الاشتراكات فقط (GET).
+const canManageSubscriptions = restrictTo('super_admin', 'supervisor');
+
 // ─── Validators ──────────────────────────────────────────────────────────────
 
 const createValidators = [
@@ -64,22 +68,22 @@ const notesValidators = [
 // GET  /subscriptions/player/:playerId
 router.get('/player/:playerId', getSubscriptionsByPlayer);
 
-// GET  /subscriptions/academy/:academyId/revenue — admin blocked
-router.get('/academy/:academyId/revenue', restrictTo('super_admin', 'academy_admin'), getRevenueSummary);
+// GET  /subscriptions/academy/:academyId/revenue — admin (limited role) blocked
+router.get('/academy/:academyId/revenue', restrictTo('super_admin', 'supervisor', 'academy_admin'), getRevenueSummary);
 
-// GET  /subscriptions/academy/:academyId — admin blocked (uses player-level access instead)
-router.get('/academy/:academyId', restrictTo('super_admin', 'academy_admin'), getSubscriptionsByAcademy);
+// GET  /subscriptions/academy/:academyId — admin (limited role) blocked (uses player-level access instead)
+router.get('/academy/:academyId', restrictTo('super_admin', 'supervisor', 'academy_admin'), getSubscriptionsByAcademy);
 
 // GET  /subscriptions/:id
 router.get('/:id', getSubscriptionById);
 
 // POST /subscriptions
-router.post('/', createValidators, validate, createSubscription);
+router.post('/', canManageSubscriptions, createValidators, validate, createSubscription);
 
 // PATCH /subscriptions/:id/notes
-router.patch('/:id/notes', notesValidators, validate, updateSubscriptionNotes);
+router.patch('/:id/notes', canManageSubscriptions, notesValidators, validate, updateSubscriptionNotes);
 
 // DELETE /subscriptions/:id
-router.delete('/:id', deleteSubscription);
+router.delete('/:id', canManageSubscriptions, deleteSubscription);
 
 module.exports = router;

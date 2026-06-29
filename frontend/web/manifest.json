@@ -1,11 +1,11 @@
 {
-    "name": "Basketball Academy Manager",
-    "short_name": "Academy",
+    "name": "أكاديمية نجوم المستقبل",
+    "short_name": "نجوم المستقبل",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#F8F9FA",
-    "theme_color": "#E85D04",
-    "description": "نظام إدارة أكاديمية كرة السلة",
+    "background_color": "#0F172A",
+    "theme_color": "#F97316",
+    "description": "نظام إدارة أكاديمية نجوم المستقبل",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

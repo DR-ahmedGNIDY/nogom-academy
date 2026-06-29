@@ -5,6 +5,14 @@ const AppError = require('../utils/AppError');
 const { sendSuccess } = require('../utils/apiResponse');
 const { logActivity } = require('../utils/activityLogger');
 
+// هذا المسار مقصور على super_admin ولا يملك academyId خاصاً به،
+// فيجب تمرير الأكاديمية المطلوبة صراحةً عبر query أو body.
+const resolveAcademyId = (req) => {
+  const academyId = req.query.academyId || req.body.academyId;
+  if (!academyId) throw new AppError('معرّف الأكاديمية مطلوب', 400);
+  return academyId;
+};
+
 const computeNetSalary = ({ baseSalary, monthlyAttendanceTarget, presentCount, deductionType, deductionValue }) => {
   const absentCount = Math.max(monthlyAttendanceTarget - presentCount, 0);
   const salary = baseSalary || 0;
@@ -26,7 +34,7 @@ const generatePayroll = async (req, res, next) => {
     return next(new AppError('الشهر مطلوب بصيغة YYYY-MM', 400));
   }
 
-  const staffFilter = { academyId: req.user.academyId, isActive: true };
+  const staffFilter = { academyId: resolveAcademyId(req), isActive: true };
   if (staffId) staffFilter._id = staffId;
 
   const staffList = await Staff.find(staffFilter);
@@ -92,7 +100,7 @@ const generatePayroll = async (req, res, next) => {
 
 // ─── GET /payroll ────────────────────────────────────────────────────────────
 const getPayrollList = async (req, res, next) => {
-  const filter = { academyId: req.user.academyId };
+  const filter = { academyId: resolveAcademyId(req) };
   if (req.query.month) filter.month = req.query.month;
   if (req.query.staffId) filter.staffId = req.query.staffId;
   if (req.query.status) filter.status = req.query.status;
@@ -108,7 +116,7 @@ const getPayrollReport = async (req, res, next) => {
     return next(new AppError('الشهر مطلوب بصيغة YYYY-MM', 400));
   }
 
-  const records = await Payroll.find({ academyId: req.user.academyId, month })
+  const records = await Payroll.find({ academyId: resolveAcademyId(req), month })
     .populate('staffId', 'fullName position');
 
   const report = records.map((r) => ({
@@ -137,7 +145,8 @@ const getPayrollReport = async (req, res, next) => {
 const markPaid = async (req, res, next) => {
   const payroll = await Payroll.findById(req.params.id);
   if (!payroll) return next(new AppError('سجل الراتب غير موجود', 404));
-  if (payroll.academyId.toString() !== req.user.academyId?.toString()) {
+  if (req.user.role !== 'super_admin' &&
+      payroll.academyId.toString() !== req.user.academyId?.toString()) {
     return next(new AppError('ليس لديك صلاحية لتعديل هذا السجل', 403));
   }
 
