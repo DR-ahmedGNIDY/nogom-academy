@@ -52,6 +52,9 @@ const allowedOriginPatterns = [
   // the friendlier project alias and any of its own deployment/preview URLs.
   /^https:\/\/web-[\w-]+\.vercel\.app$/,
   /^https:\/\/nogom-academy-web(-[\w-]+)?\.vercel\.app$/,
+  // Production Flutter Web deployment and its parent domain.
+  /^https?:\/\/app2\.nosait\.com$/,
+  /^https?:\/\/nosait\.com$/,
   // Local development.
   /^https?:\/\/localhost(:\d+)?$/,
   /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
@@ -76,6 +79,7 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+app.options('*', cors());
 
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
