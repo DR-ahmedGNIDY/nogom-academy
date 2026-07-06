@@ -5,6 +5,7 @@ import 'package:basketball_academy/core/constants/app_strings.dart';
 import 'package:basketball_academy/core/constants/sports_constants.dart';
 import 'package:basketball_academy/core/widgets/multi_select_chips.dart';
 import 'package:basketball_academy/features/academy/presentation/providers/academy_provider.dart';
+import 'package:basketball_academy/features/groups/presentation/providers/groups_provider.dart';
 import 'package:basketball_academy/features/player/domain/entities/player_entity.dart';
 import 'package:basketball_academy/features/player/presentation/providers/player_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -41,6 +42,7 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
   DateTime? _birthDate;
   String? _selectedRelationship;
   String? _selectedSport;
+  String? _selectedGroupId;
   late List<String> _selectedAttendanceDays;
   XFile? _pickedImage;
   Uint8List? _pickedImageBytes;
@@ -80,6 +82,7 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
     _birthDate = widget.player.birthDate;
     _selectedRelationship = widget.player.parentRelationship;
     _selectedSport = widget.player.sport;
+    _selectedGroupId = widget.player.groupId;
     _selectedAttendanceDays = List<String>.from(widget.player.attendanceDays);
   }
 
@@ -239,6 +242,7 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
           sport: isMultiSport ? _selectedSport : null,
           attendanceDays: _selectedAttendanceDays,
           imagePath: _pickedImage?.path,
+          groupId: _selectedGroupId,
         );
 
     if (!mounted) return;
@@ -269,6 +273,11 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
     final academy = ref.watch(academyByIdProvider(widget.academyId)).valueOrNull;
     final isMultiSport = academy?.isMultiSport ?? false;
     final sports = academy?.sports ?? const <String>[];
+    final groupsAsync = ref.watch(groupsByAcademyProvider((
+      academyId: widget.academyId,
+      sportId: isMultiSport ? _selectedSport : null,
+    )));
+    final groups = groupsAsync.valueOrNull ?? const [];
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -444,11 +453,33 @@ class _EditPlayerScreenState extends ConsumerState<EditPlayerScreen> {
                   items: sports
                       .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                       .toList(),
-                  onChanged: (val) => setState(() => _selectedSport = val),
+                  onChanged: (val) => setState(() {
+                    _selectedSport = val;
+                    _selectedGroupId = null;
+                  }),
                   validator: (v) => v == null ? AppStrings.required : null,
                 ),
                 Gap(16.h),
               ],
+
+              // Group (required)
+              _buildLabel('المجموعة'),
+              Gap(6.h),
+              DropdownButtonFormField<String>(
+                initialValue:
+                    groups.any((g) => g.id == _selectedGroupId)
+                        ? _selectedGroupId
+                        : null,
+                decoration: _inputDecoration(hint: 'اختر المجموعة'),
+                items: groups
+                    .map((g) => DropdownMenuItem(value: g.id, child: Text(g.name)))
+                    .toList(),
+                onChanged: (val) => setState(() => _selectedGroupId = val),
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? AppStrings.required : null,
+              ),
+
+              Gap(16.h),
 
               // Attendance days (optional)
               _buildLabel('أيام الحضور (اختياري)'),

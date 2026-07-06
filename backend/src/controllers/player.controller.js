@@ -1,5 +1,6 @@
 const Player = require('../models/player.model');
 const Academy = require('../models/academy.model');
+const Group = require('../models/group.model');
 const AppError = require('../utils/AppError');
 const { sendSuccess, sendPaginated } = require('../utils/apiResponse');
 const { deleteImage } = require('../config/cloudinary');
@@ -71,6 +72,11 @@ const getPlayers = async (req, res, next) => {
   // Attendance-day filter — matches players whose attendanceDays array contains the day
   if (req.query.attendanceDay && req.query.attendanceDay.trim().length > 0) {
     filter.attendanceDays = req.query.attendanceDay.trim();
+  }
+
+  // Group filter
+  if (req.query.groupId && req.query.groupId.trim().length > 0) {
+    filter.groupId = req.query.groupId.trim();
   }
 
   // Search
@@ -169,6 +175,7 @@ const createPlayer = async (req, res, next) => {
     playerPhone,
     notes,
     sport,
+    groupId,
   } = req.body;
 
   const playerData = {
@@ -203,6 +210,17 @@ const createPlayer = async (req, res, next) => {
     }
     playerData.sport = chosen;
   }
+
+  // ── Group assignment (required) ───────────────────────────────────────────
+  if (!groupId) return next(new AppError('المجموعة مطلوبة', 422));
+  const group = await Group.findById(groupId);
+  if (!group || group.academyId.toString() !== academyId.toString()) {
+    return next(new AppError('المجموعة غير موجودة في هذه الأكاديمية', 404));
+  }
+  if (group.sportId && group.sportId !== playerData.sport) {
+    return next(new AppError('المجموعة المختارة لا تنتمي إلى رياضة اللاعب', 422));
+  }
+  playerData.groupId = group._id;
 
   // ── Attendance days ───────────────────────────────────────────────────────
   const attendanceDays = parseArrayField(req.body.attendanceDays);
@@ -254,6 +272,22 @@ const updatePlayer = async (req, res, next) => {
     if (chosen) player.sport = chosen;
   }
 
+  // Group update — validate the group belongs to the same academy/sport.
+  if (req.body.groupId !== undefined) {
+    if (!req.body.groupId) {
+      player.groupId = null;
+    } else {
+      const group = await Group.findById(req.body.groupId);
+      if (!group || group.academyId.toString() !== player.academyId.toString()) {
+        return next(new AppError('المجموعة غير موجودة في هذه الأكاديمية', 404));
+      }
+      if (group.sportId && group.sportId !== player.sport) {
+        return next(new AppError('المجموعة المختارة لا تنتمي إلى رياضة اللاعب', 422));
+      }
+      player.groupId = group._id;
+    }
+  }
+
   // Attendance days update
   const attendanceDays = parseArrayField(req.body.attendanceDays);
   if (attendanceDays !== undefined) player.attendanceDays = attendanceDays;
@@ -298,6 +332,37 @@ const deletePlayer = async (req, res, next) => {
   return sendSuccess(res, { message: 'تم حذف اللاعب بنجاح' });
 };
 
+// ─── PATCH /players/:id/change-group ─────────────────────────────────────────
+const changeGroup = async (req, res, next) => {
+  const player = await Player.findById(req.params.id);
+  if (!player) return next(new AppError('اللاعب غير موجود', 404));
+
+  if (req.user.role !== 'super_admin' &&
+      player.academyId.toString() !== req.user.academyId?.toString()) {
+    return next(new AppError('ليس لديك صلاحية لتعديل هذا اللاعب', 403));
+  }
+
+  const { groupId } = req.body;
+  if (!groupId) return next(new AppError('المجموعة مطلوبة', 400));
+
+  const group = await Group.findById(groupId);
+  if (!group || group.academyId.toString() !== player.academyId.toString()) {
+    return next(new AppError('المجموعة غير موجودة في هذه الأكاديمية', 404));
+  }
+  if (group.sportId && group.sportId !== player.sport) {
+    return next(new AppError('المجموعة المختارة لا تنتمي إلى رياضة اللاعب', 422));
+  }
+
+  player.groupId = group._id;
+  await player.save();
+
+  logActivity(req, {
+    actionType: 'CHANGE_PLAYER_GROUP', entityType: 'PLAYER',
+    entityId: player._id, entityName: player.fullName, academyId: player.academyId,
+  });
+  return sendSuccess(res, { data: player, message: 'تم تغيير مجموعة اللاعب بنجاح' });
+};
+
 // ─── DELETE /players/:id/image ───────────────────────────────────────────────
 const deletePlayerImage = async (req, res, next) => {
   const player = await Player.findById(req.params.id).select('+image_public_id');
@@ -328,4 +393,5 @@ module.exports = {
   updatePlayer,
   deletePlayer,
   deletePlayerImage,
+  changeGroup,
 };

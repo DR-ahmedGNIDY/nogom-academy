@@ -1,4 +1,6 @@
 import 'package:basketball_academy/core/constants/app_colors.dart';
+import 'package:basketball_academy/core/widgets/responsive_center.dart';
+import 'package:basketball_academy/core/widgets/responsive_scaffold.dart';
 import 'package:basketball_academy/features/payroll/presentation/providers/payroll_provider.dart';
 import 'package:basketball_academy/features/payroll/presentation/screens/payroll_report_screen.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +74,7 @@ class _PayrollListScreenState extends ConsumerState<PayrollListScreen> {
   Widget build(BuildContext context) {
     final payrollAsync = ref.watch(payrollProvider);
 
-    return Scaffold(
+    return ResponsiveScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('الرواتب'),
@@ -87,7 +89,9 @@ class _PayrollListScreenState extends ConsumerState<PayrollListScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: ResponsiveCenter(
+        maxWidth: 900,
+        child: Column(
         children: [
           Padding(
             padding: EdgeInsets.all(16.r),
@@ -172,6 +176,7 @@ class _PayrollListScreenState extends ConsumerState<PayrollListScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

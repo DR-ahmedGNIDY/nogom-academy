@@ -16,6 +16,8 @@ import 'package:basketball_academy/features/staff/presentation/screens/staff_lis
 import 'package:basketball_academy/features/payroll/presentation/screens/payroll_list_screen.dart';
 import 'package:basketball_academy/features/expenses/presentation/screens/expenses_list_screen.dart';
 import 'package:basketball_academy/features/matches/presentation/screens/matches_list_screen.dart';
+import 'package:basketball_academy/features/groups/presentation/screens/groups_list_screen.dart';
+import 'package:basketball_academy/features/groups/presentation/screens/group_details_screen.dart';
 import 'package:basketball_academy/features/reports/presentation/screens/financial_reports_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +45,8 @@ class AppRoutes {
   static const String payrollList = '/academies/:id/payroll';
   static const String expensesList = '/academies/:id/expenses';
   static const String matchesList = '/academies/:id/matches';
+  static const String groupsList = '/academies/:id/groups';
+  static const String groupDetail = '/academies/:id/groups/:groupId';
   static const String financialReports = '/academies/:id/financial-reports';
   static const String notifications = '/notifications';
   static const String accountSettings = '/account-settings';
@@ -229,6 +233,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final academyId = state.pathParameters['id']!;
           return MatchesListScreen(academyId: academyId);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.groupsList,
+        builder: (context, state) {
+          final academyId = state.pathParameters['id']!;
+          return GroupsListScreen(academyId: academyId);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.groupDetail,
+        builder: (context, state) {
+          final academyId = state.pathParameters['id']!;
+          final groupId = state.pathParameters['groupId']!;
+          return GroupDetailScreen(academyId: academyId, groupId: groupId);
         },
       ),
       GoRoute(

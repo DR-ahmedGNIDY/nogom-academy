@@ -10,6 +10,8 @@ class DashboardStatsEntity extends Equatable {
   final int newSubscriptionsCount;
   final int renewalsCount;
   final double averageEvaluationScore;
+  final int totalGroups;
+  final int activeGroups;
 
   const DashboardStatsEntity({
     required this.totalPlayers,
@@ -21,6 +23,8 @@ class DashboardStatsEntity extends Equatable {
     required this.newSubscriptionsCount,
     required this.renewalsCount,
     required this.averageEvaluationScore,
+    this.totalGroups = 0,
+    this.activeGroups = 0,
   });
 
   @override
@@ -34,6 +38,8 @@ class DashboardStatsEntity extends Equatable {
         newSubscriptionsCount,
         renewalsCount,
         averageEvaluationScore,
+        totalGroups,
+        activeGroups,
       ];
 }
 

@@ -10,6 +10,8 @@ class DashboardStatsModel {
   final int newSubscriptionsCount;
   final int renewalsCount;
   final double averageEvaluationScore;
+  final int totalGroups;
+  final int activeGroups;
 
   const DashboardStatsModel({
     required this.totalPlayers,
@@ -21,6 +23,8 @@ class DashboardStatsModel {
     required this.newSubscriptionsCount,
     required this.renewalsCount,
     required this.averageEvaluationScore,
+    this.totalGroups = 0,
+    this.activeGroups = 0,
   });
 
   factory DashboardStatsModel.fromJson(Map<String, dynamic> json) {
@@ -34,6 +38,8 @@ class DashboardStatsModel {
       newSubscriptionsCount: (json['newSubscriptionsCount'] as num?)?.toInt() ?? 0,
       renewalsCount: (json['renewalsCount'] as num?)?.toInt() ?? 0,
       averageEvaluationScore: (json['averageEvaluationScore'] as num?)?.toDouble() ?? 0.0,
+      totalGroups: (json['totalGroups'] as num?)?.toInt() ?? 0,
+      activeGroups: (json['activeGroups'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -48,6 +54,8 @@ class DashboardStatsModel {
       newSubscriptionsCount: newSubscriptionsCount,
       renewalsCount: renewalsCount,
       averageEvaluationScore: averageEvaluationScore,
+      totalGroups: totalGroups,
+      activeGroups: activeGroups,
     );
   }
 }

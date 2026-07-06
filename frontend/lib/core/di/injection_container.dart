@@ -87,6 +87,15 @@ import 'package:basketball_academy/features/matches/domain/usecases/get_match_us
 import 'package:basketball_academy/features/matches/domain/usecases/get_matches_usecase.dart';
 import 'package:basketball_academy/features/matches/domain/usecases/log_reminder_usecase.dart';
 import 'package:basketball_academy/features/matches/domain/usecases/remove_player_from_match_usecase.dart';
+import 'package:basketball_academy/features/groups/data/datasources/groups_remote_datasource.dart';
+import 'package:basketball_academy/features/groups/data/repositories/groups_repository_impl.dart';
+import 'package:basketball_academy/features/groups/domain/repositories/groups_repository.dart';
+import 'package:basketball_academy/features/groups/domain/usecases/create_group_usecase.dart';
+import 'package:basketball_academy/features/groups/domain/usecases/delete_group_usecase.dart';
+import 'package:basketball_academy/features/groups/domain/usecases/get_group_usecase.dart';
+import 'package:basketball_academy/features/groups/domain/usecases/get_groups_by_academy_usecase.dart';
+import 'package:basketball_academy/features/groups/domain/usecases/get_groups_usecase.dart';
+import 'package:basketball_academy/features/groups/domain/usecases/update_group_usecase.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 
@@ -366,5 +375,31 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<DeleteMatchUsecase>(
     () => DeleteMatchUsecase(sl<MatchesRepository>()),
+  );
+
+  // Groups
+  sl.registerLazySingleton<GroupsRemoteDatasource>(
+    () => GroupsRemoteDatasourceImpl(sl<ApiClient>()),
+  );
+  sl.registerLazySingleton<GroupsRepository>(
+    () => GroupsRepositoryImpl(remoteDatasource: sl<GroupsRemoteDatasource>()),
+  );
+  sl.registerLazySingleton<GetGroupsUsecase>(
+    () => GetGroupsUsecase(sl<GroupsRepository>()),
+  );
+  sl.registerLazySingleton<GetGroupsByAcademyUsecase>(
+    () => GetGroupsByAcademyUsecase(sl<GroupsRepository>()),
+  );
+  sl.registerLazySingleton<GetGroupUsecase>(
+    () => GetGroupUsecase(sl<GroupsRepository>()),
+  );
+  sl.registerLazySingleton<CreateGroupUsecase>(
+    () => CreateGroupUsecase(sl<GroupsRepository>()),
+  );
+  sl.registerLazySingleton<UpdateGroupUsecase>(
+    () => UpdateGroupUsecase(sl<GroupsRepository>()),
+  );
+  sl.registerLazySingleton<DeleteGroupUsecase>(
+    () => DeleteGroupUsecase(sl<GroupsRepository>()),
   );
 }

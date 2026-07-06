@@ -19,6 +19,7 @@ abstract class PlayerRemoteDatasource {
     int? birthYear,
     String? sport,
     String? attendanceDay,
+    String? groupId,
     int page = 1,
     int limit = 20,
   });
@@ -38,6 +39,7 @@ abstract class PlayerRemoteDatasource {
     String? notes,
     String? sport,
     List<String> attendanceDays,
+    required String groupId,
     String? academyId,
     String? imagePath,
   });
@@ -54,6 +56,7 @@ abstract class PlayerRemoteDatasource {
     String? notes,
     String? sport,
     List<String>? attendanceDays,
+    String? groupId,
     String? imagePath,
   });
 
@@ -80,6 +83,7 @@ class PlayerRemoteDatasourceImpl implements PlayerRemoteDatasource {
     int? birthYear,
     String? sport,
     String? attendanceDay,
+    String? groupId,
     int page = 1,
     int limit = 20,
   }) async {
@@ -92,6 +96,7 @@ class PlayerRemoteDatasourceImpl implements PlayerRemoteDatasource {
       if (sport != null && sport.isNotEmpty) 'sport': sport,
       if (attendanceDay != null && attendanceDay.isNotEmpty)
         'attendanceDay': attendanceDay,
+      if (groupId != null && groupId.isNotEmpty) 'groupId': groupId,
     };
 
     final response = await _apiClient.get('/players', queryParameters: queryParams);
@@ -141,6 +146,7 @@ class PlayerRemoteDatasourceImpl implements PlayerRemoteDatasource {
     String? notes,
     String? sport,
     List<String> attendanceDays = const [],
+    required String groupId,
     String? academyId,
     String? imagePath,
   }) async {
@@ -156,6 +162,7 @@ class PlayerRemoteDatasourceImpl implements PlayerRemoteDatasource {
         if (notes != null) 'notes': notes,
         if (sport != null && sport.isNotEmpty) 'sport': sport,
         'attendanceDays': jsonEncode(attendanceDays),
+        'groupId': groupId,
         if (academyId != null) 'academyId': academyId,
         'image': MultipartFile.fromBytes(
           await XFile(imagePath).readAsBytes(),
@@ -180,6 +187,7 @@ class PlayerRemoteDatasourceImpl implements PlayerRemoteDatasource {
         if (notes != null) 'notes': notes,
         if (sport != null && sport.isNotEmpty) 'sport': sport,
         'attendanceDays': attendanceDays,
+        'groupId': groupId,
         if (academyId != null) 'academyId': academyId,
       };
       final response = await _apiClient.post('/players', data: data);
@@ -201,6 +209,7 @@ class PlayerRemoteDatasourceImpl implements PlayerRemoteDatasource {
     String? notes,
     String? sport,
     List<String>? attendanceDays,
+    String? groupId,
     String? imagePath,
   }) async {
     if (imagePath != null) {
@@ -215,6 +224,7 @@ class PlayerRemoteDatasourceImpl implements PlayerRemoteDatasource {
         if (notes != null) 'notes': notes,
         if (sport != null && sport.isNotEmpty) 'sport': sport,
         if (attendanceDays != null) 'attendanceDays': jsonEncode(attendanceDays),
+        if (groupId != null) 'groupId': groupId,
         'image': MultipartFile.fromBytes(
           await XFile(imagePath).readAsBytes(),
           filename: 'player_image.jpg',
@@ -239,6 +249,7 @@ class PlayerRemoteDatasourceImpl implements PlayerRemoteDatasource {
         if (notes != null) 'notes': notes,
         if (sport != null && sport.isNotEmpty) 'sport': sport,
         if (attendanceDays != null) 'attendanceDays': attendanceDays,
+        if (groupId != null) 'groupId': groupId,
       };
       final response = await _apiClient.put('/players/$id', data: data);
       final body = response.data as Map<String, dynamic>;

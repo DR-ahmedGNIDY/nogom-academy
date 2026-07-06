@@ -7,8 +7,11 @@ import 'package:basketball_academy/features/academy/presentation/providers/curre
 import 'package:basketball_academy/features/dashboard/domain/entities/dashboard_entity.dart';
 import 'package:basketball_academy/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:basketball_academy/features/attendance/presentation/screens/attendance_hub_screen.dart';
+import 'package:basketball_academy/features/groups/presentation/screens/groups_list_screen.dart';
 import 'package:basketball_academy/features/dashboard/presentation/screens/sport_detail_screen.dart';
 import 'package:basketball_academy/features/notification/presentation/screens/notifications_screen.dart';
+import 'package:basketball_academy/core/widgets/responsive_center.dart';
+import 'package:basketball_academy/core/widgets/responsive_scaffold.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,7 +68,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ? ref.watch(academyByIdProvider(currentAcademyId)).valueOrNull
         : null;
 
-    return Scaffold(
+    return ResponsiveScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.secondary,
@@ -275,16 +278,37 @@ class _QuickActionsGrid extends StatelessWidget {
           AppRoutes.matchesList.replaceFirst(':id', academyId),
         ),
       ),
+      _QuickActionItem(
+        icon: Icons.groups_outlined,
+        label: 'المجموعات',
+        color: AppColors.secondary,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => GroupsListScreen(academyId: academyId),
+          ),
+        ),
+      ),
+      // التقارير: متاحة لكل الأدوار على مستوى الأكاديمية (مشرف / مدير أكاديمية)
+      // للعرض والتصدير فقط — الشاشة نفسها تحصر البيانات بأكاديمية المستخدم.
+      _QuickActionItem(
+        icon: Icons.bar_chart_outlined,
+        label: AppStrings.reports,
+        color: AppColors.warning,
+        onTap: () => context.push(AppRoutes.reports),
+      ),
     ];
 
-    return GridView.count(
-      crossAxisCount: 3,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 12.w,
-      mainAxisSpacing: 12.h,
-      childAspectRatio: 1.1,
-      children: items,
+    return LayoutBuilder(
+      builder: (context, constraints) => GridView.count(
+        crossAxisCount:
+            responsiveGridColumns(constraints.maxWidth, base: 3),
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisSpacing: 12.w,
+        mainAxisSpacing: 12.h,
+        childAspectRatio: 1.1,
+        children: items,
+      ),
     );
   }
 }
@@ -351,14 +375,16 @@ class _AdminSection extends ConsumerWidget {
         ),
         Gap(12.h),
         if (selectedAcademyId != null) ...[
-          GridView.count(
-            crossAxisCount: 3,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: 12.w,
-            mainAxisSpacing: 12.h,
-            childAspectRatio: 1.1,
-            children: [
+          LayoutBuilder(
+            builder: (context, constraints) => GridView.count(
+              crossAxisCount:
+                  responsiveGridColumns(constraints.maxWidth, base: 3),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisSpacing: 12.w,
+              mainAxisSpacing: 12.h,
+              childAspectRatio: 1.1,
+              children: [
               _QuickActionItem(
                 icon: Icons.sports_soccer_outlined,
                 label: AppStrings.players,
@@ -381,6 +407,17 @@ class _AdminSection extends ConsumerWidget {
                 color: AppColors.primary,
                 onTap: () => context.push(
                   AppRoutes.matchesList.replaceFirst(':id', selectedAcademyId!),
+                ),
+              ),
+              _QuickActionItem(
+                icon: Icons.groups_outlined,
+                label: 'المجموعات',
+                color: AppColors.secondary,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        GroupsListScreen(academyId: selectedAcademyId!),
+                  ),
                 ),
               ),
               _QuickActionItem(
@@ -435,7 +472,8 @@ class _AdminSection extends ConsumerWidget {
                   AppRoutes.academyUsers.replaceFirst(':id', selectedAcademyId!),
                 ),
               ),
-            ],
+              ],
+            ),
           ),
         ],
       ],
@@ -528,11 +566,12 @@ class _SportsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
+    return LayoutBuilder(
+      builder: (context, constraints) => GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+        crossAxisCount: responsiveGridColumns(constraints.maxWidth, base: 2),
         crossAxisSpacing: 12.w,
         mainAxisSpacing: 12.h,
         childAspectRatio: 2.4,
@@ -598,6 +637,7 @@ class _SportsGrid extends StatelessWidget {
           ),
         );
       },
+      ),
     );
   }
 }
@@ -768,19 +808,35 @@ class _StatsGrid extends StatelessWidget {
         color: AppColors.warning,
         bg: AppColors.warningLight,
       ),
+      _StatCardData(
+        label: 'إجمالي المجموعات',
+        value: '${s?.totalGroups ?? 0}',
+        icon: Icons.groups_outlined,
+        color: AppColors.secondary,
+        bg: AppColors.secondaryContainer,
+      ),
+      _StatCardData(
+        label: 'المجموعات النشطة',
+        value: '${s?.activeGroups ?? 0}',
+        icon: Icons.groups,
+        color: AppColors.success,
+        bg: AppColors.successLight,
+      ),
     ];
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12.w,
-        mainAxisSpacing: 12.h,
-        childAspectRatio: 1.5,
+    return LayoutBuilder(
+      builder: (context, constraints) => GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: responsiveGridColumns(constraints.maxWidth, base: 2),
+          crossAxisSpacing: 12.w,
+          mainAxisSpacing: 12.h,
+          childAspectRatio: 1.5,
+        ),
+        itemCount: cards.length,
+        itemBuilder: (_, i) => _StatCard(data: cards[i]),
       ),
-      itemCount: cards.length,
-      itemBuilder: (_, i) => _StatCard(data: cards[i]),
     );
   }
 

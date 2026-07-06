@@ -1,0 +1,44 @@
+import 'package:basketball_academy/core/errors/failures.dart';
+import 'package:basketball_academy/core/utils/usecase.dart';
+import 'package:basketball_academy/features/groups/domain/entities/group_entity.dart';
+import 'package:basketball_academy/features/groups/domain/repositories/groups_repository.dart';
+import 'package:dartz/dartz.dart';
+
+class UpdateGroupParams {
+  final String id;
+  final String? name;
+  final String? ageGroup;
+  final int? capacity;
+  final String? coachId;
+  final bool? isActive;
+  final String? sportId;
+
+  const UpdateGroupParams({
+    required this.id,
+    this.name,
+    this.ageGroup,
+    this.capacity,
+    this.coachId,
+    this.isActive,
+    this.sportId,
+  });
+}
+
+class UpdateGroupUsecase extends UseCase<GroupEntity, UpdateGroupParams> {
+  final GroupsRepository _repository;
+
+  UpdateGroupUsecase(this._repository);
+
+  @override
+  Future<Either<Failure, GroupEntity>> call(UpdateGroupParams params) {
+    return _repository.updateGroup(
+      id: params.id,
+      name: params.name,
+      ageGroup: params.ageGroup,
+      capacity: params.capacity,
+      coachId: params.coachId,
+      isActive: params.isActive,
+      sportId: params.sportId,
+    );
+  }
+}

@@ -1,5 +1,7 @@
 import 'package:basketball_academy/core/constants/app_colors.dart';
 import 'package:basketball_academy/core/utils/privacy_launcher.dart';
+import 'package:basketball_academy/core/widgets/responsive_center.dart';
+import 'package:basketball_academy/core/widgets/responsive_scaffold.dart';
 import 'package:basketball_academy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -90,13 +92,15 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
     final theme = Theme.of(context);
     final user = ref.watch(authStateProvider).valueOrNull?.user;
 
-    return Scaffold(
+    return ResponsiveScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('إعدادات الحساب'),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
+      body: ResponsiveCenter(
+        webPadding: EdgeInsets.symmetric(vertical: 24.h),
+        child: SingleChildScrollView(
         padding: EdgeInsets.all(20.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -272,6 +276,7 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
             ),
             Gap(40.h),
           ],
+        ),
         ),
       ),
     );

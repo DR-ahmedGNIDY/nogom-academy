@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:basketball_academy/core/constants/app_colors.dart';
+import 'package:basketball_academy/core/widgets/responsive_center.dart';
+import 'package:basketball_academy/core/widgets/responsive_scaffold.dart';
 import 'package:basketball_academy/features/academy/presentation/providers/academy_provider.dart';
 import 'package:basketball_academy/features/attendance/domain/entities/attendance_report_entity.dart';
 import 'package:basketball_academy/features/attendance/presentation/providers/attendance_provider.dart';
@@ -73,13 +75,15 @@ class _AttendanceReportScreenState
     );
     final reportAsync = ref.watch(attendanceReportProvider(filter));
 
-    return Scaffold(
+    return ResponsiveScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('تقرير الحضور والغياب'),
         centerTitle: true,
       ),
-      body: Column(
+      body: ResponsiveCenter(
+        maxWidth: 1100,
+        child: Column(
         children: [
           // فلتر الفترة
           Padding(
@@ -161,6 +165,7 @@ class _AttendanceReportScreenState
             ),
           ),
         ],
+        ),
       ),
       floatingActionButton: reportAsync.maybeWhen(
         data: (report) => FloatingActionButton.extended(

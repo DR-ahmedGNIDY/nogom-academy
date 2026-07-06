@@ -25,6 +25,7 @@ const staffAttendanceRoutes = require('./routes/staffAttendance.routes');
 const payrollRoutes = require('./routes/payroll.routes');
 const expenseRoutes = require('./routes/expense.routes');
 const matchRoutes = require('./routes/match.routes');
+const groupRoutes = require('./routes/group.routes');
 
 const app = express();
 
@@ -137,6 +138,7 @@ app.use('/api/v1/staff-attendance', staffAttendanceRoutes);
 app.use('/api/v1/payroll', payrollRoutes);
 app.use('/api/v1/expenses', expenseRoutes);
 app.use('/api/v1/matches', matchRoutes);
+app.use('/api/v1/groups', groupRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

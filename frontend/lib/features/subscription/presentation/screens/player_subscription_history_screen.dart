@@ -1,5 +1,7 @@
 import 'package:basketball_academy/core/constants/app_colors.dart';
 import 'package:basketball_academy/core/constants/app_strings.dart';
+import 'package:basketball_academy/core/widgets/responsive_center.dart';
+import 'package:basketball_academy/core/widgets/responsive_scaffold.dart';
 import 'package:basketball_academy/features/academy/presentation/providers/currency_provider.dart';
 import 'package:basketball_academy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:basketball_academy/features/subscription/domain/entities/subscription_entity.dart';
@@ -105,7 +107,7 @@ class _PlayerSubscriptionHistoryScreenState
     final currencyLabel =
         ref.watch(academyCurrencyLabelProvider(widget.academyId));
 
-    return Scaffold(
+    return ResponsiveScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Column(
@@ -146,7 +148,9 @@ class _PlayerSubscriptionHistoryScreenState
               foregroundColor: AppColors.white,
             )
           : null,
-      body: Column(
+      body: ResponsiveCenter(
+        maxWidth: 900,
+        child: Column(
         children: [
           // Filter chips
           _buildFilterChips(),
@@ -213,6 +217,7 @@ class _PlayerSubscriptionHistoryScreenState
             ),
           ),
         ],
+        ),
       ),
     );
   }

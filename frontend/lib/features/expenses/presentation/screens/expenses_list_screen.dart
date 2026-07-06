@@ -1,4 +1,6 @@
 import 'package:basketball_academy/core/constants/app_colors.dart';
+import 'package:basketball_academy/core/widgets/responsive_center.dart';
+import 'package:basketball_academy/core/widgets/responsive_scaffold.dart';
 import 'package:basketball_academy/features/expenses/domain/entities/expense_entity.dart';
 import 'package:basketball_academy/features/expenses/presentation/providers/expense_provider.dart';
 import 'package:basketball_academy/features/expenses/presentation/screens/add_edit_expense_screen.dart';
@@ -50,7 +52,7 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
   Widget build(BuildContext context) {
     final expensesAsync = ref.watch(expensesProvider);
 
-    return Scaffold(
+    return ResponsiveScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('المصروفات'),
@@ -69,7 +71,9 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
         },
         child: const Icon(Icons.add),
       ),
-      body: Column(
+      body: ResponsiveCenter(
+        maxWidth: 900,
+        child: Column(
         children: [
           SizedBox(
             height: 44.h,
@@ -122,6 +126,7 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

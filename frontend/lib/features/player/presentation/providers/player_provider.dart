@@ -22,6 +22,7 @@ class PlayersState {
   final String? academyIdFilter;
   final String? sportFilter;
   final String? attendanceDayFilter;
+  final String? groupFilter;
 
   const PlayersState({
     this.players = const [],
@@ -34,6 +35,7 @@ class PlayersState {
     this.academyIdFilter,
     this.sportFilter,
     this.attendanceDayFilter,
+    this.groupFilter,
   });
 
   PlayersState copyWith({
@@ -47,6 +49,7 @@ class PlayersState {
     Object? academyIdFilter = _sentinel,
     Object? sportFilter = _sentinel,
     Object? attendanceDayFilter = _sentinel,
+    Object? groupFilter = _sentinel,
   }) {
     return PlayersState(
       players: players ?? this.players,
@@ -66,6 +69,8 @@ class PlayersState {
       attendanceDayFilter: attendanceDayFilter == _sentinel
           ? this.attendanceDayFilter
           : attendanceDayFilter as String?,
+      groupFilter:
+          groupFilter == _sentinel ? this.groupFilter : groupFilter as String?,
     );
   }
 }
@@ -99,6 +104,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
     String? academyIdFilter,
     String? sportFilter,
     String? attendanceDayFilter,
+    String? groupFilter,
     int page = 1,
     int limit = 50,
   }) async {
@@ -109,6 +115,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
         academyId: academyIdFilter,
         sport: sportFilter,
         attendanceDay: attendanceDayFilter,
+        groupId: groupFilter,
         page: page,
         limit: limit,
       ),
@@ -126,6 +133,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
         academyIdFilter: academyIdFilter,
         sportFilter: sportFilter,
         attendanceDayFilter: attendanceDayFilter,
+        groupFilter: groupFilter,
       ),
     );
   }
@@ -140,6 +148,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
         academyIdFilter: current?.academyIdFilter,
         sportFilter: current?.sportFilter,
         attendanceDayFilter: current?.attendanceDayFilter,
+        groupFilter: current?.groupFilter,
       ),
     );
   }
@@ -156,6 +165,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
         academyIdFilter: current?.academyIdFilter,
         sportFilter: current?.sportFilter,
         attendanceDayFilter: current?.attendanceDayFilter,
+        groupFilter: current?.groupFilter,
       ),
     );
   }
@@ -172,6 +182,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
         academyIdFilter: current?.academyIdFilter,
         sportFilter: current?.sportFilter,
         attendanceDayFilter: current?.attendanceDayFilter,
+        groupFilter: current?.groupFilter,
       ),
     );
   }
@@ -186,6 +197,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
         academyIdFilter: current?.academyIdFilter,
         sportFilter: current?.sportFilter,
         attendanceDayFilter: current?.attendanceDayFilter,
+        groupFilter: current?.groupFilter,
       ),
     );
   }
@@ -200,6 +212,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
         academyIdFilter: academyId,
         sportFilter: current?.sportFilter,
         attendanceDayFilter: current?.attendanceDayFilter,
+        groupFilter: current?.groupFilter,
       ),
     );
   }
@@ -214,6 +227,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
         academyIdFilter: current?.academyIdFilter,
         sportFilter: sport,
         attendanceDayFilter: current?.attendanceDayFilter,
+        groupFilter: current?.groupFilter,
       ),
     );
   }
@@ -228,6 +242,22 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
         academyIdFilter: current?.academyIdFilter,
         sportFilter: current?.sportFilter,
         attendanceDayFilter: day,
+        groupFilter: current?.groupFilter,
+      ),
+    );
+  }
+
+  Future<void> filterByGroup(String? groupId) async {
+    final current = state.valueOrNull;
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(
+      () => _fetchPlayers(
+        search: current?.search,
+        birthYearFilter: current?.birthYearFilter,
+        academyIdFilter: current?.academyIdFilter,
+        sportFilter: current?.sportFilter,
+        attendanceDayFilter: current?.attendanceDayFilter,
+        groupFilter: groupId,
       ),
     );
   }
@@ -243,6 +273,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
         academyId: current.academyIdFilter,
         sport: current.sportFilter,
         attendanceDay: current.attendanceDayFilter,
+        groupId: current.groupFilter,
         page: nextPage,
         limit: 50,
       ),
@@ -276,6 +307,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
     List<String> attendanceDays = const [],
     String? academyId,
     String? imagePath,
+    required String groupId,
   }) async {
     final result = await _createPlayerUsecase(
       CreatePlayerParams(
@@ -291,6 +323,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
         attendanceDays: attendanceDays,
         academyId: academyId,
         imagePath: imagePath,
+        groupId: groupId,
       ),
     );
     return result.fold(
@@ -315,6 +348,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
     String? sport,
     List<String>? attendanceDays,
     String? imagePath,
+    String? groupId,
   }) async {
     final result = await _updatePlayerUsecase(
       UpdatePlayerParams(
@@ -330,6 +364,7 @@ class PlayersNotifier extends AsyncNotifier<PlayersState> {
         sport: sport,
         attendanceDays: attendanceDays,
         imagePath: imagePath,
+        groupId: groupId,
       ),
     );
     return result.fold(

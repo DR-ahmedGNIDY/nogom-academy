@@ -10,6 +10,7 @@ class GetPlayersParams {
   final int? birthYear;
   final String? sport;
   final String? attendanceDay;
+  final String? groupId;
   final int page;
   final int limit;
 
@@ -19,6 +20,7 @@ class GetPlayersParams {
     this.birthYear,
     this.sport,
     this.attendanceDay,
+    this.groupId,
     this.page = 1,
     this.limit = 20,
   });
@@ -40,6 +42,7 @@ class GetPlayersUsecase extends UseCase<
       birthYear: params.birthYear,
       sport: params.sport,
       attendanceDay: params.attendanceDay,
+      groupId: params.groupId,
       page: params.page,
       limit: params.limit,
     );

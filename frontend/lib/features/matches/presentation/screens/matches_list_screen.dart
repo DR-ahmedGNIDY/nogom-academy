@@ -1,4 +1,6 @@
 import 'package:basketball_academy/core/constants/app_colors.dart';
+import 'package:basketball_academy/core/widgets/responsive_center.dart';
+import 'package:basketball_academy/core/widgets/responsive_scaffold.dart';
 import 'package:basketball_academy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:basketball_academy/features/matches/domain/entities/match_entity.dart';
 import 'package:basketball_academy/features/matches/presentation/providers/matches_provider.dart';
@@ -21,10 +23,12 @@ class MatchesListScreen extends ConsumerWidget {
         ref.watch(authStateProvider).valueOrNull?.user?.canManageOperations ??
             false;
 
-    return Scaffold(
+    return ResponsiveScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('المباريات'), centerTitle: true),
-      body: matchesAsync.when(
+      body: ResponsiveCenter(
+        maxWidth: 900,
+        child: matchesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text(err.toString())),
         data: (matches) {
@@ -68,6 +72,7 @@ class MatchesListScreen extends ConsumerWidget {
             ),
           );
         },
+        ),
       ),
       floatingActionButton: canManage
           ? FloatingActionButton.extended(

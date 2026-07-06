@@ -3,6 +3,7 @@ const Player = require('../models/player.model');
 const Subscription = require('../models/subscription.model');
 const Evaluation = require('../models/evaluation.model');
 const Activity = require('../models/activity.model');
+const Group = require('../models/group.model');
 const { sendSuccess } = require('../utils/apiResponse');
 const AppError = require('../utils/AppError');
 
@@ -25,7 +26,7 @@ const getDashboardStats = async (req, res, next) => {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-  const [playerStats, subscriptionStats, evaluationStats] = await Promise.all([
+  const [playerStats, subscriptionStats, evaluationStats, groupStats] = await Promise.all([
     // 1. Players aggregation
     Player.aggregate([
       { $match: match },
@@ -75,6 +76,18 @@ const getDashboardStats = async (req, res, next) => {
       { $match: match },
       { $group: { _id: null, averageEvaluationScore: { $avg: '$average' } } },
     ]),
+
+    // 4. Groups aggregation
+    Group.aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: null,
+          totalGroups: { $sum: 1 },
+          activeGroups: { $sum: { $cond: ['$isActive', 1, 0] } },
+        },
+      },
+    ]),
   ]);
 
   const players = playerStats[0] || { totalPlayers: 0, activePlayers: 0 };
@@ -90,6 +103,7 @@ const getDashboardStats = async (req, res, next) => {
   const renewalsDoc = extract(subs.renewalsCount);
 
   const evalStats = evaluationStats[0] || { averageEvaluationScore: 0 };
+  const groups = groupStats[0] || { totalGroups: 0, activeGroups: 0 };
 
   sendSuccess(res, {
     data: {
@@ -102,6 +116,8 @@ const getDashboardStats = async (req, res, next) => {
       newSubscriptionsCount: newSubsDoc.count || 0,
       renewalsCount: renewalsDoc.count || 0,
       averageEvaluationScore: Math.round((evalStats.averageEvaluationScore || 0) * 100) / 100,
+      totalGroups: groups.totalGroups || 0,
+      activeGroups: groups.activeGroups || 0,
     },
   });
 };

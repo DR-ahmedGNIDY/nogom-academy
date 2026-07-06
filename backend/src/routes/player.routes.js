@@ -8,8 +8,9 @@ const {
   updatePlayer,
   deletePlayer,
   deletePlayerImage,
+  changeGroup,
 } = require('../controllers/player.controller');
-const { protect } = require('../middleware/auth.middleware');
+const { protect, restrictTo } = require('../middleware/auth.middleware');
 const validate = require('../middleware/validate');
 const { uploadPlayerImage } = require('../config/cloudinary');
 
@@ -43,6 +44,9 @@ const createValidators = [
   body('sport')
     .optional({ checkFalsy: true })
     .isLength({ max: 60 }).withMessage('اسم الرياضة غير صحيح'),
+  body('groupId')
+    .notEmpty().withMessage('المجموعة مطلوبة')
+    .isMongoId().withMessage('معرّف المجموعة غير صحيح'),
 ];
 
 const updateValidators = [
@@ -68,6 +72,15 @@ const updateValidators = [
   body('sport')
     .optional({ checkFalsy: true })
     .isLength({ max: 60 }).withMessage('اسم الرياضة غير صحيح'),
+  body('groupId')
+    .optional({ checkFalsy: true })
+    .isMongoId().withMessage('معرّف المجموعة غير صحيح'),
+];
+
+const changeGroupValidators = [
+  body('groupId')
+    .notEmpty().withMessage('المجموعة مطلوبة')
+    .isMongoId().withMessage('معرّف المجموعة غير صحيح'),
 ];
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
@@ -97,6 +110,15 @@ router.put(
   updateValidators,
   validate,
   updatePlayer
+);
+
+// PATCH /players/:id/change-group
+router.patch(
+  '/:id/change-group',
+  restrictTo('super_admin', 'academy_admin', 'supervisor'),
+  changeGroupValidators,
+  validate,
+  changeGroup
 );
 
 // DELETE /players/:id

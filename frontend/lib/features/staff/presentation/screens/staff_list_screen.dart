@@ -1,4 +1,6 @@
 import 'package:basketball_academy/core/constants/app_colors.dart';
+import 'package:basketball_academy/core/widgets/responsive_center.dart';
+import 'package:basketball_academy/core/widgets/responsive_scaffold.dart';
 import 'package:basketball_academy/features/staff/domain/entities/staff_entity.dart';
 import 'package:basketball_academy/features/staff/presentation/providers/staff_provider.dart';
 import 'package:basketball_academy/features/staff/presentation/screens/add_edit_staff_screen.dart';
@@ -56,7 +58,7 @@ class _StaffListScreenState extends ConsumerState<StaffListScreen> {
   Widget build(BuildContext context) {
     final staffAsync = ref.watch(staffProvider);
 
-    return Scaffold(
+    return ResponsiveScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('الإدارة والموظفين'),
@@ -79,7 +81,9 @@ class _StaffListScreenState extends ConsumerState<StaffListScreen> {
         },
         child: const Icon(Icons.add),
       ),
-      body: staffAsync.when(
+      body: ResponsiveCenter(
+        maxWidth: 900,
+        child: staffAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('حدث خطأ: $err')),
         data: (state) {
@@ -108,6 +112,7 @@ class _StaffListScreenState extends ConsumerState<StaffListScreen> {
             ),
           );
         },
+        ),
       ),
     );
   }

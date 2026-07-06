@@ -4,9 +4,12 @@ import 'package:basketball_academy/core/constants/app_colors.dart';
 import 'package:basketball_academy/core/constants/app_strings.dart';
 import 'package:basketball_academy/core/constants/sports_constants.dart';
 import 'package:basketball_academy/core/router/app_router.dart';
+import 'package:basketball_academy/core/widgets/responsive_center.dart';
+import 'package:basketball_academy/core/widgets/responsive_scaffold.dart';
 import 'package:basketball_academy/features/academy/presentation/providers/academy_provider.dart';
 import 'package:basketball_academy/features/attendance/presentation/screens/attendance_hub_screen.dart';
 import 'package:basketball_academy/features/auth/presentation/providers/auth_provider.dart';
+import 'package:basketball_academy/features/groups/presentation/providers/groups_provider.dart';
 import 'package:basketball_academy/features/notification/presentation/screens/notifications_screen.dart';
 import 'package:basketball_academy/features/player/domain/entities/player_entity.dart';
 import 'package:basketball_academy/features/player/presentation/providers/player_provider.dart';
@@ -110,11 +113,20 @@ class _PlayersListScreenState extends ConsumerState<PlayersListScreen> {
     final isMultiSport = academy?.isMultiSport ?? false;
     final academySports = academy?.sports ?? const <String>[];
 
+    // Groups filter chips — scoped by the currently selected sport chip
+    // when the academy is multi-sport.
+    final currentSportFilter = playersAsync.valueOrNull?.sportFilter;
+    final groupsAsync = ref.watch(groupsByAcademyProvider((
+      academyId: widget.academyId,
+      sportId: isMultiSport ? currentSportFilter : null,
+    )));
+    final academyGroups = groupsAsync.valueOrNull ?? const [];
+
     final canAdd = isSuperAdmin ||
         (isAcademyLevel &&
             authState?.user?.academyId == widget.academyId);
 
-    return Scaffold(
+    return ResponsiveScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Row(
@@ -177,7 +189,9 @@ class _PlayersListScreenState extends ConsumerState<PlayersListScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: ResponsiveCenter(
+        maxWidth: 900,
+        child: Column(
         children: [
           // Search bar
           Padding(
@@ -227,6 +241,30 @@ class _PlayersListScreenState extends ConsumerState<PlayersListScreen> {
                     onSelected: (sport) => ref
                         .read(playersProvider.notifier)
                         .filterBySport(sport),
+                  ),
+                ) ??
+                const SizedBox.shrink(),
+
+          // Filter row - groups chips
+          if (academyGroups.isNotEmpty)
+            playersAsync.whenOrNull(
+                  data: (state) => _ChipFilterRow(
+                    allLabel: 'كل المجموعات',
+                    options: academyGroups.map((g) => g.name).toList(),
+                    selected: academyGroups
+                        .where((g) => g.id == state.groupFilter)
+                        .map((g) => g.name)
+                        .firstOrNull,
+                    onSelected: (name) {
+                      final group = name == null
+                          ? null
+                          : academyGroups
+                              .where((g) => g.name == name)
+                              .firstOrNull;
+                      ref
+                          .read(playersProvider.notifier)
+                          .filterByGroup(group?.id);
+                    },
                   ),
                 ) ??
                 const SizedBox.shrink(),
@@ -336,6 +374,7 @@ class _PlayersListScreenState extends ConsumerState<PlayersListScreen> {
             ),
           ),
         ],
+        ),
       ),
       floatingActionButton: canAdd
           ? FloatingActionButton.extended(

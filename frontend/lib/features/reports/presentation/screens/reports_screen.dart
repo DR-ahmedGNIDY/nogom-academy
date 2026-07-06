@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:basketball_academy/core/constants/app_colors.dart';
 import 'package:basketball_academy/core/constants/app_strings.dart';
 import 'package:basketball_academy/core/router/app_router.dart';
+import 'package:basketball_academy/core/widgets/responsive_center.dart';
+import 'package:basketball_academy/core/widgets/responsive_scaffold.dart';
 import 'package:basketball_academy/features/academy/presentation/providers/academy_provider.dart';
 import 'package:basketball_academy/features/academy/presentation/providers/currency_provider.dart';
 import 'package:basketball_academy/features/auth/presentation/providers/auth_provider.dart';
@@ -311,12 +313,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
         : null;
     final sportsForFilter = academyForSport?.sports ?? const <String>[];
 
-    return Scaffold(
+    return ResponsiveScaffold(
       appBar: AppBar(
         title: const Text(AppStrings.reports),
         centerTitle: true,
       ),
-      body: Column(
+      body: ResponsiveCenter(
+        maxWidth: 1100,
+        child: Column(
         children: [
           // ----------------------------------------------------------------
           // Filter bar
@@ -505,6 +509,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

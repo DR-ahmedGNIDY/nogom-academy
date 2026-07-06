@@ -26,6 +26,7 @@ class PlayerRepositoryImpl implements PlayerRepository {
     int? birthYear,
     String? sport,
     String? attendanceDay,
+    String? groupId,
     int page = 1,
     int limit = 20,
   }) async {
@@ -36,6 +37,7 @@ class PlayerRepositoryImpl implements PlayerRepository {
         birthYear: birthYear,
         sport: sport,
         attendanceDay: attendanceDay,
+        groupId: groupId,
         page: page,
         limit: limit,
       );
@@ -105,6 +107,7 @@ class PlayerRepositoryImpl implements PlayerRepository {
     String? notes,
     String? sport,
     List<String> attendanceDays = const [],
+    required String groupId,
     String? academyId,
     String? imagePath,
   }) async {
@@ -120,6 +123,7 @@ class PlayerRepositoryImpl implements PlayerRepository {
         notes: notes,
         sport: sport,
         attendanceDays: attendanceDays,
+        groupId: groupId,
         academyId: academyId,
         imagePath: imagePath,
       );
@@ -152,6 +156,7 @@ class PlayerRepositoryImpl implements PlayerRepository {
     String? notes,
     String? sport,
     List<String>? attendanceDays,
+    String? groupId,
     String? imagePath,
   }) async {
     try {
@@ -167,6 +172,7 @@ class PlayerRepositoryImpl implements PlayerRepository {
         notes: notes,
         sport: sport,
         attendanceDays: attendanceDays,
+        groupId: groupId,
         imagePath: imagePath,
       );
       return Right(model.toEntity());

@@ -5,6 +5,7 @@ import 'package:basketball_academy/core/constants/app_strings.dart';
 import 'package:basketball_academy/core/constants/sports_constants.dart';
 import 'package:basketball_academy/core/widgets/multi_select_chips.dart';
 import 'package:basketball_academy/features/academy/presentation/providers/academy_provider.dart';
+import 'package:basketball_academy/features/groups/presentation/providers/groups_provider.dart';
 import 'package:basketball_academy/features/player/presentation/providers/player_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,6 +35,7 @@ class _AddPlayerScreenState extends ConsumerState<AddPlayerScreen> {
   DateTime? _birthDate;
   String? _selectedRelationship;
   String? _selectedSport;
+  String? _selectedGroupId;
   List<String> _selectedAttendanceDays = const [];
   XFile? _pickedImage;
   Uint8List? _pickedImageBytes;
@@ -192,6 +194,17 @@ class _AddPlayerScreenState extends ConsumerState<AddPlayerScreen> {
       return;
     }
 
+    if (_selectedGroupId == null || _selectedGroupId!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('الرجاء اختيار المجموعة'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     final error = await ref.read(playersProvider.notifier).createPlayer(
@@ -214,6 +227,7 @@ class _AddPlayerScreenState extends ConsumerState<AddPlayerScreen> {
           attendanceDays: _selectedAttendanceDays,
           academyId: widget.academyId,
           imagePath: _pickedImage?.path,
+          groupId: _selectedGroupId!,
         );
 
     if (!mounted) return;
@@ -245,6 +259,18 @@ class _AddPlayerScreenState extends ConsumerState<AddPlayerScreen> {
     final academy = academyAsync.valueOrNull;
     final isMultiSport = academy?.isMultiSport ?? false;
     final sports = academy?.sports ?? const <String>[];
+    // Groups are scoped by academy, and by the currently selected sport
+    // when the academy is multi-sport.
+    final groupsAsync = ref.watch(groupsByAcademyProvider((
+      academyId: widget.academyId,
+      sportId: isMultiSport ? _selectedSport : null,
+    )));
+    final groups = groupsAsync.valueOrNull ?? const [];
+    // Don't flag "no groups" while the sport hasn't been chosen yet on a
+    // multi-sport academy (groups haven't been scoped/fetched meaningfully).
+    final noGroupsAvailable = groupsAsync.hasValue &&
+        groups.isEmpty &&
+        (!isMultiSport || _selectedSport != null);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -402,11 +428,60 @@ class _AddPlayerScreenState extends ConsumerState<AddPlayerScreen> {
                   items: sports
                       .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                       .toList(),
-                  onChanged: (val) => setState(() => _selectedSport = val),
+                  onChanged: (val) => setState(() {
+                    _selectedSport = val;
+                    _selectedGroupId = null;
+                  }),
                   validator: (v) => v == null ? AppStrings.required : null,
                 ),
                 Gap(16.h),
               ],
+
+              // Group (required)
+              _buildLabel('المجموعة'),
+              Gap(6.h),
+              if (noGroupsAvailable)
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.errorLight,
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(color: AppColors.error),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.warning_amber_rounded,
+                          color: AppColors.error, size: 20.sp),
+                      Gap(8.w),
+                      Expanded(
+                        child: Text(
+                          'يجب إنشاء مجموعة أولاً',
+                          style: TextStyle(
+                            color: AppColors.error,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13.sp,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                DropdownButtonFormField<String>(
+                  initialValue:
+                      groups.any((g) => g.id == _selectedGroupId)
+                          ? _selectedGroupId
+                          : null,
+                  decoration: _inputDecoration(hint: 'اختر المجموعة'),
+                  items: groups
+                      .map((g) => DropdownMenuItem(value: g.id, child: Text(g.name)))
+                      .toList(),
+                  onChanged: (val) => setState(() => _selectedGroupId = val),
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? AppStrings.required : null,
+                ),
+
+              Gap(16.h),
 
               // Attendance days (optional)
               _buildLabel('أيام الحضور (اختياري)'),
@@ -476,7 +551,8 @@ class _AddPlayerScreenState extends ConsumerState<AddPlayerScreen> {
 
               // Submit button
               ElevatedButton(
-                onPressed: _isLoading ? null : _submit,
+                onPressed:
+                    (_isLoading || noGroupsAvailable) ? null : _submit,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 16.h),
                   shape: RoundedRectangleBorder(

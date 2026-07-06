@@ -1,4 +1,6 @@
 import 'package:basketball_academy/core/constants/app_colors.dart';
+import 'package:basketball_academy/core/widgets/responsive_center.dart';
+import 'package:basketball_academy/core/widgets/responsive_scaffold.dart';
 import 'package:basketball_academy/features/expenses/presentation/providers/expense_provider.dart';
 import 'package:basketball_academy/features/payroll/presentation/providers/payroll_provider.dart';
 import 'package:basketball_academy/features/subscription/presentation/providers/subscription_provider.dart';
@@ -71,7 +73,7 @@ class _FinancialReportsScreenState
         (revenueAsync.valueOrNull?['totalRevenue'] as num?)?.toDouble() ?? 0;
     final netRevenue = monthlyRevenue - totalExpenses - totalPayroll;
 
-    return Scaffold(
+    return ResponsiveScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('التقارير المالية'),
@@ -84,7 +86,9 @@ class _FinancialReportsScreenState
           ),
         ],
       ),
-      body: ListView(
+      body: ResponsiveCenter(
+        maxWidth: 900,
+        child: ListView(
         padding: EdgeInsets.all(16.r),
         children: [
           Center(
@@ -154,6 +158,7 @@ class _FinancialReportsScreenState
             ),
           ),
         ],
+        ),
       ),
     );
   }
