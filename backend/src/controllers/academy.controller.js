@@ -27,8 +27,8 @@ const parseSports = (raw) => {
 const getAcademies = async (req, res, next) => {
   let query = { isActive: true };
 
-  // أي مستخدم غير super_admin يرى أكاديميته فقط.
-  if (req.user.role !== 'super_admin') {
+  // أي مستخدم غير super_admin/security يرى أكاديميته فقط. security يرى الكل.
+  if (req.user.role !== 'super_admin' && req.user.role !== 'security') {
     query._id = req.user.academyId;
   }
 
@@ -44,7 +44,7 @@ const getAcademyById = async (req, res, next) => {
 
   if (!academy) return next(new AppError('الأكاديمية غير موجودة', 404));
 
-  if (req.user.role !== 'super_admin' &&
+  if (req.user.role !== 'super_admin' && req.user.role !== 'security' &&
       academy._id.toString() !== req.user.academyId?.toString()) {
     return next(new AppError('ليس لديك صلاحية للوصول إلى هذه الأكاديمية', 403));
   }

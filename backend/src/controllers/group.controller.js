@@ -7,7 +7,7 @@ const logger = require('../utils/logger');
 const { logActivity } = require('../utils/activityLogger');
 
 const resolveAcademyFilter = (req, filter) => {
-  if (req.user.role === 'super_admin') {
+  if (req.user.role === 'super_admin' || req.user.role === 'security') {
     if (!req.query.academyId && !req.body.academyId) {
       throw new AppError('معرّف الأكاديمية مطلوب', 400);
     }
@@ -18,7 +18,7 @@ const resolveAcademyFilter = (req, filter) => {
 };
 
 const assertAccess = (req, group, message) => {
-  if (req.user.role !== 'super_admin' &&
+  if (req.user.role !== 'super_admin' && req.user.role !== 'security' &&
       group.academyId.toString() !== req.user.academyId?.toString()) {
     throw new AppError(message, 403);
   }

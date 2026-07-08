@@ -2,16 +2,22 @@ import 'package:basketball_academy/core/constants/app_colors.dart';
 import 'package:basketball_academy/features/attendance/presentation/screens/attendance_log_screen.dart';
 import 'package:basketball_academy/features/attendance/presentation/screens/attendance_report_screen.dart';
 import 'package:basketball_academy/features/attendance/presentation/screens/attendance_scan_screen.dart';
+import 'package:basketball_academy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 
-class AttendanceHubScreen extends StatelessWidget {
+class AttendanceHubScreen extends ConsumerWidget {
   final String academyId;
   const AttendanceHubScreen({super.key, required this.academyId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // تقرير الحضور والغياب مقصور على الأدوار الإدارية — دور "أمن" لا يملك
+    // صلاحية الوصول لهذا التقرير (محجوب أيضاً من الـ backend).
+    final isSecurity =
+        ref.watch(authStateProvider).valueOrNull?.user?.isSecurity ?? false;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -45,18 +51,20 @@ class AttendanceHubScreen extends StatelessWidget {
                 ),
               ),
             ),
-            Gap(14.h),
-            _HubTile(
-              icon: Icons.assessment_outlined,
-              color: const Color(0xFF2D9748),
-              title: 'تقرير الحضور والغياب',
-              subtitle: 'إحصائيات الالتزام و PDF',
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => AttendanceReportScreen(academyId: academyId),
+            if (!isSecurity) ...[
+              Gap(14.h),
+              _HubTile(
+                icon: Icons.assessment_outlined,
+                color: const Color(0xFF2D9748),
+                title: 'تقرير الحضور والغياب',
+                subtitle: 'إحصائيات الالتزام و PDF',
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => AttendanceReportScreen(academyId: academyId),
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),

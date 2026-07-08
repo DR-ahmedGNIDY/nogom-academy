@@ -330,11 +330,15 @@ class _PlayerDetailContent extends ConsumerWidget {
     final theme = Theme.of(context);
     final authState = ref.watch(authStateProvider).valueOrNull;
     final isSuperAdmin = authState?.user?.isSuperAdmin ?? false;
-    final isAcademyLevelSame =
-        !isSuperAdmin && authState?.user?.academyId == academyId;
+    final isSecurity = authState?.user?.isSecurity ?? false;
+    final isAcademyLevelSame = !isSuperAdmin &&
+        !isSecurity &&
+        authState?.user?.academyId == academyId;
     final canEdit = isSuperAdmin || isAcademyLevelSame;
     final canManageSubscriptions =
         canEdit && (authState?.user?.canManageOperations ?? false);
+    // "أمن" يرى حالة الاشتراك للقراءة فقط، بدون أزرار إضافة/تجديد/دفع
+    final canViewSubscription = canEdit || isSecurity;
 
     final dateFormat = DateFormat('dd/MM/yyyy', 'ar');
 
@@ -592,16 +596,19 @@ class _PlayerDetailContent extends ConsumerWidget {
 
                   Gap(16.h),
                   // Subscription Card
-                  _buildSubscriptionCard(
-                      context, ref, player, canEdit, canManageSubscriptions),
+                  _buildSubscriptionCard(context, ref, player,
+                      canViewSubscription, canManageSubscriptions),
 
-                  Gap(8.h),
-                  _LatestEvaluationCard(
-                    playerId: player.id,
-                    academyId: academyId,
-                    playerName: player.fullName,
-                    canEdit: canEdit,
-                  ),
+                  // التقييمات: مخفية بالكامل عن دور "أمن"
+                  if (!isSecurity) ...[
+                    Gap(8.h),
+                    _LatestEvaluationCard(
+                      playerId: player.id,
+                      academyId: academyId,
+                      playerName: player.fullName,
+                      canEdit: canEdit,
+                    ),
+                  ],
                   Gap(16.h),
 
                   // Communication section (WhatsApp)

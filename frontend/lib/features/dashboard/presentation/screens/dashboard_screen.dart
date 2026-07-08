@@ -44,6 +44,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         );
         return;
       }
+      // security لا يملك صلاحية إحصائيات الـ dashboard — لا نجلب بياناتها
+      if (user.isSecurity) return;
       if (user.isAcademyLevel) {
         ref.read(dashboardProvider.notifier).refresh(academyId: user.academyId);
       } else {
@@ -56,6 +58,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider).valueOrNull;
     final user = authState?.user;
+
+    // دور "أمن" (SECURITY): لوحة مبسّطة بدون إحصائيات/تقارير/إشعارات —
+    // فقط اختيار الأكاديمية ثم الوصول للاعبين والحضور عبر كل الأكاديميات.
+    if (user?.isSecurity == true) {
+      return _SecurityDashboard(userName: user!.name);
+    }
+
     final isSuperAdmin = user?.isSuperAdmin ?? false;
     final dashAsync = ref.watch(dashboardProvider);
     final currentAcademyId = isSuperAdmin ? _selectedAcademyId : user?.academyId;
@@ -217,6 +226,140 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Security Dashboard (SECURITY role — أمن) ───────────────────────────────
+// لوحة مبسّطة: اختيار أكاديمية ثم إجراءا سريعان فقط: اللاعبون + الحضور.
+// بدون إحصائيات، بدون إشعارات، بدون تقارير — يرى كل الأكاديميات.
+
+class _SecurityDashboard extends ConsumerStatefulWidget {
+  final String userName;
+  const _SecurityDashboard({required this.userName});
+
+  @override
+  ConsumerState<_SecurityDashboard> createState() => _SecurityDashboardState();
+}
+
+class _SecurityDashboardState extends ConsumerState<_SecurityDashboard> {
+  String? _selectedAcademyId;
+
+  @override
+  Widget build(BuildContext context) {
+    final academiesAsync = ref.watch(academiesProvider);
+
+    return ResponsiveScaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.secondary,
+        foregroundColor: AppColors.white,
+        title: Text(
+          AppStrings.dashboard,
+          style: TextStyle(
+            color: AppColors.white,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout_outlined),
+            tooltip: AppStrings.logout,
+            onPressed: () async {
+              await ref.read(authStateProvider.notifier).logout();
+              if (context.mounted) context.go(AppRoutes.login);
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.r),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _WelcomeCard(userName: widget.userName),
+            Gap(20.h),
+            const _SectionTitle(title: 'اختر الأكاديمية'),
+            Gap(8.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(12.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: academiesAsync.when(
+                loading: () => const LinearProgressIndicator(),
+                error: (err, _) => Text(
+                  err.toString(),
+                  style: TextStyle(color: AppColors.error, fontSize: 12.sp),
+                ),
+                data: (academies) => DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: academies.any((a) => a.id == _selectedAcademyId)
+                        ? _selectedAcademyId
+                        : null,
+                    hint: Text(
+                      'اختر أكاديمية',
+                      style: TextStyle(fontSize: 13.sp, color: AppColors.grey500),
+                    ),
+                    items: academies
+                        .map((a) => DropdownMenuItem(
+                              value: a.id,
+                              child: Text(a.name, style: TextStyle(fontSize: 13.sp)),
+                            ))
+                        .toList(),
+                    onChanged: (id) => setState(() => _selectedAcademyId = id),
+                  ),
+                ),
+              ),
+            ),
+            Gap(20.h),
+            if (_selectedAcademyId != null) ...[
+              const _SectionTitle(title: 'الإجراءات السريعة'),
+              Gap(8.h),
+              LayoutBuilder(
+                builder: (context, constraints) => GridView.count(
+                  crossAxisCount: responsiveGridColumns(constraints.maxWidth, base: 3),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 12.w,
+                  mainAxisSpacing: 12.h,
+                  childAspectRatio: 1.1,
+                  children: [
+                    _QuickActionItem(
+                      icon: Icons.sports_soccer_outlined,
+                      label: AppStrings.players,
+                      color: AppColors.primary,
+                      onTap: () => context.push(
+                        AppRoutes.playersList.replaceFirst(':id', _selectedAcademyId!),
+                      ),
+                    ),
+                    _QuickActionItem(
+                      icon: Icons.qr_code_scanner,
+                      label: 'الحضور والانصراف',
+                      color: AppColors.primaryDark,
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => AttendanceHubScreen(academyId: _selectedAcademyId!),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

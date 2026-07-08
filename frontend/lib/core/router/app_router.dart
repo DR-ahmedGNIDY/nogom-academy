@@ -81,6 +81,33 @@ class _RouterNotifier extends ChangeNotifier {
       }
       return AppRoutes.home;
     }
+
+    // دور "أمن" (SECURITY): وصول فقط لـ dashboard/players/attendance/groups
+    // عبر كل الأكاديميات — أي رابط آخر (تقارير/إشعارات/مالية/إدارة...) يُعاد
+    // توجيهه إلى الـ dashboard.
+    if (user?.isSecurity == true) {
+      final isForbidden = loc.contains('/evaluations') ||
+          loc.contains('/subscriptions/new') ||
+          loc.contains('/matches') ||
+          loc.contains('/staff') ||
+          loc.contains('/payroll') ||
+          loc.contains('/expenses') ||
+          loc.contains('/financial-reports') ||
+          loc.contains('/users') ||
+          loc == AppRoutes.academyList ||
+          loc == AppRoutes.reports ||
+          loc == AppRoutes.notifications ||
+          loc == AppRoutes.accountSettings;
+      final allowed = !isForbidden &&
+          (loc == AppRoutes.home ||
+              loc.contains('/players') ||
+              loc.contains('/groups'));
+      if (!allowed) {
+        return AppRoutes.home;
+      }
+      return null;
+    }
+
     if (user?.isAdmin == true) {
       final academyId = user?.academyId;
       final allowedPrefixes = [

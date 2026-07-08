@@ -97,6 +97,7 @@ router.get('/:id', getPlayerById);
 // POST /players
 router.post(
   '/',
+  restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'),
   uploadPlayerImage.single('image'),
   createValidators,
   validate,
@@ -106,6 +107,7 @@ router.post(
 // PUT  /players/:id
 router.put(
   '/:id',
+  restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'),
   uploadPlayerImage.single('image'),
   updateValidators,
   validate,
@@ -122,9 +124,9 @@ router.patch(
 );
 
 // DELETE /players/:id
-router.delete('/:id', deletePlayer);
+router.delete('/:id', restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'), deletePlayer);
 
 // DELETE /players/:id/image
-router.delete('/:id/image', deletePlayerImage);
+router.delete('/:id/image', restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'), deletePlayerImage);
 
 module.exports = router;

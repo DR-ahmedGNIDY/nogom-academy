@@ -9,13 +9,15 @@ const {
   deleteEvaluation,
   getEvaluationsByAcademy,
 } = require('../controllers/evaluation.controller');
-const { protect } = require('../middleware/auth.middleware');
+const { protect, restrictTo } = require('../middleware/auth.middleware');
 const validate = require('../middleware/validate');
 
 const router = express.Router();
 
 // All routes require authentication
 router.use(protect);
+// SECURITY role has no access to evaluations at all
+router.use(restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'));
 
 // ─── Validators ──────────────────────────────────────────────────────────────
 

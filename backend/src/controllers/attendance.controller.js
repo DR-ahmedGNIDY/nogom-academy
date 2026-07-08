@@ -64,7 +64,7 @@ const recordAttendance = async (req, res, next) => {
 
   // 2) فحص صلاحية النطاق
   if (
-    req.user.role !== 'super_admin' &&
+    req.user.role !== 'super_admin' && req.user.role !== 'security' &&
     player.academyId.toString() !== req.user.academyId?.toString()
   ) {
     return next(new AppError('ليس لديك صلاحية لتسجيل حضور هذا اللاعب', 403));
@@ -124,8 +124,8 @@ const getAttendance = async (req, res, next) => {
 
   const filter = {};
 
-  // نطاق الأكاديمية إلزامي — super_admin يمرّر academyId، وغيره مُقيَّد بأكاديميته.
-  if (req.user.role === 'super_admin') {
+  // نطاق الأكاديمية إلزامي — super_admin/security يمرّران academyId، وغيره مُقيَّد بأكاديميته.
+  if (req.user.role === 'super_admin' || req.user.role === 'security') {
     if (!req.query.academyId) {
       return next(new AppError('معرّف الأكاديمية مطلوب', 400));
     }

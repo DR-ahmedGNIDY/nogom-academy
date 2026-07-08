@@ -330,6 +330,20 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                         }),
                       ),
                     ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: _RoleCard(
+                        value: 'security',
+                        label: 'أمن',
+                        icon: Icons.shield_outlined,
+                        selectedValue: _selectedRole,
+                        onTap: (v) => setState(() {
+                          _selectedRole = v;
+                          // ignore: avoid_print
+                          assert(() { print('[RoleCard] selected="$_selectedRole"'); return true; }());
+                        }),
+                      ),
+                    ),
                   ],
                 ),
                 Gap(32.h),

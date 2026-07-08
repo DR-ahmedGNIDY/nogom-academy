@@ -35,6 +35,7 @@ class ResponsiveScaffold extends ConsumerWidget {
     final authState = ref.watch(authStateProvider).valueOrNull;
     final user = authState?.user;
     final isSuperAdmin = user?.isSuperAdmin ?? false;
+    final isSecurity = user?.isSecurity ?? false;
     final isDesktop = WebLayoutScope.widthOf(context) >= kDesktopBreakpoint;
 
     if (!isDesktop) {
@@ -43,6 +44,7 @@ class ResponsiveScaffold extends ConsumerWidget {
         drawer: AppNavigationDrawer(
           userName: user?.name ?? '',
           isSuperAdmin: isSuperAdmin,
+          isSecurity: isSecurity,
         ),
         appBar: appBar,
         body: body,
@@ -66,6 +68,7 @@ class ResponsiveScaffold extends ConsumerWidget {
               child: AppNavigationDrawer(
                 userName: user?.name ?? '',
                 isSuperAdmin: isSuperAdmin,
+                isSecurity: isSecurity,
                 isSidebar: true,
               ),
             ),

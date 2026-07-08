@@ -33,7 +33,7 @@ const createUserValidators = [
     .isMongoId().withMessage('معرف الأكاديمية غير صحيح'),
   body('role')
     .optional()
-    .isIn(['supervisor', 'academy_admin', 'admin']).withMessage('الدور غير صحيح'),
+    .isIn(['supervisor', 'academy_admin', 'admin', 'security']).withMessage('الدور غير صحيح'),
 ];
 
 const updateUserValidators = [
@@ -55,6 +55,7 @@ const mongoIdParam = (paramName) =>
 router.get(
   '/academy/:academyId',
   protect,
+  restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'),
   mongoIdParam('academyId'),
   validate,
   getUsersByAcademy

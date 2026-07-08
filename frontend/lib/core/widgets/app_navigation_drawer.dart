@@ -18,6 +18,10 @@ class AppNavigationDrawer extends ConsumerWidget {
   final String userName;
   final bool isSuperAdmin;
 
+  /// دور "أمن" (SECURITY) — قائمة مختصرة: Dashboard / Players / Attendance /
+  /// Logout فقط، بدون تقارير أو إشعارات أو إعدادات حساب أو أكاديميات.
+  final bool isSecurity;
+
   /// When true, this renders as a persistent side panel (no [Drawer] chrome,
   /// no auto-close-on-tap). When false, it renders as a real [Drawer] that
   /// closes itself before navigating.
@@ -27,11 +31,15 @@ class AppNavigationDrawer extends ConsumerWidget {
     super.key,
     required this.userName,
     required this.isSuperAdmin,
+    this.isSecurity = false,
     this.isSidebar = false,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (isSecurity) {
+      return _buildSecurityDrawer(context, ref);
+    }
     final content = SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -140,6 +148,88 @@ class AppNavigationDrawer extends ConsumerWidget {
       );
     }
 
+    return Drawer(backgroundColor: AppColors.surface, child: content);
+  }
+
+  Widget _buildSecurityDrawer(BuildContext context, WidgetRef ref) {
+    final content = SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColors.secondary, AppColors.secondaryLight],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(6.r),
+                  decoration: const BoxDecoration(
+                    color: AppColors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.shield_outlined, color: AppColors.primary, size: 26.r),
+                ),
+                Gap(12.w),
+                Expanded(
+                  child: Text(
+                    userName,
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Gap(8.h),
+          _NavItem(
+            icon: Icons.dashboard_outlined,
+            label: AppStrings.dashboard,
+            isSidebar: isSidebar,
+            onTap: () => context.go(AppRoutes.home),
+          ),
+          _NavItem(
+            icon: Icons.sports_soccer_outlined,
+            label: AppStrings.players,
+            isSidebar: isSidebar,
+            onTap: () => context.go(AppRoutes.home),
+          ),
+          _NavItem(
+            icon: Icons.qr_code_scanner,
+            label: 'الحضور والانصراف',
+            isSidebar: isSidebar,
+            onTap: () => context.go(AppRoutes.home),
+          ),
+          const Spacer(),
+          const Divider(height: 1),
+          _NavItem(
+            icon: Icons.logout_outlined,
+            label: AppStrings.logout,
+            color: AppColors.error,
+            isSidebar: isSidebar,
+            onTap: () async {
+              await ref.read(authStateProvider.notifier).logout();
+              if (context.mounted) context.go(AppRoutes.login);
+            },
+          ),
+          Gap(8.h),
+        ],
+      ),
+    );
+
+    if (isSidebar) {
+      return Container(color: AppColors.surface, child: content);
+    }
     return Drawer(backgroundColor: AppColors.surface, child: content);
   }
 }

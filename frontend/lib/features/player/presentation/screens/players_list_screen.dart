@@ -103,6 +103,7 @@ class _PlayersListScreenState extends ConsumerState<PlayersListScreen> {
     final authState = ref.watch(authStateProvider).valueOrNull;
     final isSuperAdmin = authState?.user?.isSuperAdmin ?? false;
     final isAcademyLevel = authState?.user?.isAcademyLevel ?? false;
+    final isSecurity = authState?.user?.isSecurity ?? false;
     final statusMap = ref
         .watch(academyPlayerStatusMapProvider(widget.academyId))
         .valueOrNull ??
@@ -171,14 +172,16 @@ class _PlayersListScreenState extends ConsumerState<PlayersListScreen> {
               ),
             ),
           ),
-          NotificationBellIcon(
-            onTap: () => context.push(AppRoutes.notifications),
-          ),
-          IconButton(
-            icon: const Icon(Icons.manage_accounts_outlined),
-            tooltip: 'إعدادات الحساب',
-            onPressed: () => context.push(AppRoutes.accountSettings),
-          ),
+          if (!isSecurity)
+            NotificationBellIcon(
+              onTap: () => context.push(AppRoutes.notifications),
+            ),
+          if (!isSecurity)
+            IconButton(
+              icon: const Icon(Icons.manage_accounts_outlined),
+              tooltip: 'إعدادات الحساب',
+              onPressed: () => context.push(AppRoutes.accountSettings),
+            ),
           IconButton(
             icon: const Icon(Icons.logout_outlined),
             tooltip: AppStrings.logout,

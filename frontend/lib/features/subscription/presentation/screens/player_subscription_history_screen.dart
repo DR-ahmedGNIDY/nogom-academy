@@ -96,8 +96,10 @@ class _PlayerSubscriptionHistoryScreenState
     final theme = Theme.of(context);
     final authState = ref.watch(authStateProvider).valueOrNull;
     final isSuperAdmin = authState?.user?.isSuperAdmin ?? false;
-    final isAcademyLevelSame =
-        !isSuperAdmin && authState?.user?.academyId == widget.academyId;
+    final isSecurity = authState?.user?.isSecurity ?? false;
+    final isAcademyLevelSame = !isSuperAdmin &&
+        !isSecurity &&
+        authState?.user?.academyId == widget.academyId;
     final canEdit = isSuperAdmin || isAcademyLevelSame;
 
     final subscriptionsAsync =

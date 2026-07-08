@@ -5,7 +5,7 @@ const {
   getAttendance,
   getAttendanceReport,
 } = require('../controllers/attendance.controller');
-const { protect } = require('../middleware/auth.middleware');
+const { protect, restrictTo } = require('../middleware/auth.middleware');
 const validate = require('../middleware/validate');
 
 const router = express.Router();
@@ -33,7 +33,7 @@ const recordValidators = [
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
 // GET /attendance/report   ← MUST be before any '/:id' style route
-router.get('/report', getAttendanceReport);
+router.get('/report', restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'), getAttendanceReport);
 
 // GET /attendance
 router.get('/', getAttendance);

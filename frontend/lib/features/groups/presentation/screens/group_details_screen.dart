@@ -101,8 +101,10 @@ class GroupDetailScreen extends ConsumerWidget {
     final detailAsync = ref.watch(_groupDetailProvider(groupId));
     final authState = ref.watch(authStateProvider).valueOrNull;
     final isSuperAdmin = authState?.user?.isSuperAdmin ?? false;
-    final isAcademyLevelSame =
-        !isSuperAdmin && authState?.user?.academyId == academyId;
+    final isSecurity = authState?.user?.isSecurity ?? false;
+    final isAcademyLevelSame = !isSuperAdmin &&
+        !isSecurity &&
+        authState?.user?.academyId == academyId;
     final canEdit = isSuperAdmin || isAcademyLevelSame;
 
     return Scaffold(

@@ -46,7 +46,9 @@ class UserModel {
               ? UserRole.supervisor
               : role == 'admin'
                   ? UserRole.admin
-                  : UserRole.academyAdmin,
+                  : role == 'security'
+                      ? UserRole.security
+                      : UserRole.academyAdmin,
       academyId: academyId,
       academyName: academyName,
       isActive: isActive,

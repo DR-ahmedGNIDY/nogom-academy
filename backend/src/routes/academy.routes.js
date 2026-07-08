@@ -29,9 +29,9 @@ router.route('/')
 
 router.route('/:id')
   .get(getAcademyById)
-  .put(uploadAcademyLogo.single('logo'), academyValidators, validate, updateAcademy)
+  .put(restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'), uploadAcademyLogo.single('logo'), academyValidators, validate, updateAcademy)
   .delete(restrictTo('super_admin'), deleteAcademy);
 
-router.delete('/:id/logo', deleteAcademyLogo);
+router.delete('/:id/logo', restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'), deleteAcademyLogo);
 
 module.exports = router;
