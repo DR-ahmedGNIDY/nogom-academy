@@ -6,7 +6,7 @@ const logger = require('../utils/logger');
 const { logActivity } = require('../utils/activityLogger');
 
 const resolveAcademyFilter = (req, filter) => {
-  if (req.user.role === 'super_admin') {
+  if (req.user.role === 'super_admin' || req.user.role === 'admin') {
     if (!req.query.academyId && !req.body.academyId) {
       throw new AppError('معرّف الأكاديمية مطلوب', 400);
     }
@@ -52,7 +52,7 @@ const getMatchById = async (req, res, next) => {
   const match = await Match.findById(req.params.id);
   if (!match) return next(new AppError('المباراة غير موجودة', 404));
 
-  if (req.user.role !== 'super_admin' &&
+  if (req.user.role !== 'super_admin' && req.user.role !== 'admin' &&
       match.academyId.toString() !== req.user.academyId?.toString()) {
     return next(new AppError('ليس لديك صلاحية للوصول إلى هذه المباراة', 403));
   }

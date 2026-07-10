@@ -16,8 +16,8 @@ const router = express.Router();
 
 // All routes require authentication
 router.use(protect);
-// SECURITY role has no access to evaluations at all
-router.use(restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'));
+// SECURITY and admin (Limited Permissions / Global Operator) roles have no access to evaluations at all
+router.use(restrictTo('super_admin', 'supervisor', 'academy_admin'));
 
 // ─── Validators ──────────────────────────────────────────────────────────────
 

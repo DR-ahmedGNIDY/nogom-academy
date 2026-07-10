@@ -55,7 +55,7 @@ const mongoIdParam = (paramName) =>
 router.get(
   '/academy/:academyId',
   protect,
-  restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'),
+  restrictTo('super_admin', 'supervisor', 'academy_admin'),
   mongoIdParam('academyId'),
   validate,
   getUsersByAcademy

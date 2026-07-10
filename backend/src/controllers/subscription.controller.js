@@ -22,9 +22,9 @@ function resolveAcademyId(req, paramAcademyId) {
 const createSubscription = async (req, res, next) => {
   const { playerId, type, amount, startDate, endDate, notes } = req.body;
 
-  // Determine academyId — super_admin يحدّدها، غيره مُقيَّد بأكاديميته.
+  // Determine academyId — super_admin/admin يحدّدانها، غيرهما مُقيَّد بأكاديميته.
   let academyId;
-  if (req.user.role === 'super_admin') {
+  if (req.user.role === 'super_admin' || req.user.role === 'admin') {
     academyId = req.body.academyId;
     if (!academyId) return next(new AppError('معرّف الأكاديمية مطلوب', 400));
   } else {
@@ -133,7 +133,7 @@ const getSubscriptionById = async (req, res, next) => {
     subscription.academyId?._id?.toString() || subscription.academyId?.toString();
 
   if (
-    req.user.role !== 'super_admin' &&
+    req.user.role !== 'super_admin' && req.user.role !== 'admin' &&
     academyIdStr !== req.user.academyId?.toString()
   ) {
     return next(new AppError('ليس لديك صلاحية للوصول إلى هذا الاشتراك', 403));
@@ -152,7 +152,7 @@ const getSubscriptionsByPlayer = async (req, res, next) => {
 
   // academy_admin can only see players from their own academy
   if (
-    req.user.role !== 'super_admin' &&
+    req.user.role !== 'super_admin' && req.user.role !== 'admin' &&
     player.academyId.toString() !== req.user.academyId?.toString()
   ) {
     return next(new AppError('ليس لديك صلاحية للوصول إلى اشتراكات هذا اللاعب', 403));

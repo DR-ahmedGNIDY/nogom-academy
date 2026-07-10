@@ -17,9 +17,12 @@ const router = express.Router();
 // All routes require authentication
 router.use(protect);
 
-// إنشاء/تجديد الاشتراك وتعديل الملاحظات وحذفه مقصور على super_admin و
-// supervisor — مدير الأكاديمية (academy_admin) يرى الاشتراكات فقط (GET).
+// تعديل الملاحظات وحذف الاشتراك مقصوران على super_admin و supervisor —
+// مدير الأكاديمية (academy_admin) يرى الاشتراكات فقط (GET).
 const canManageSubscriptions = restrictTo('super_admin', 'supervisor');
+
+// إنشاء/تجديد الاشتراك: super_admin و supervisor و admin (صلاحية محدودة).
+const canCreateSubscriptions = restrictTo('super_admin', 'supervisor', 'admin');
 
 // ─── Validators ──────────────────────────────────────────────────────────────
 
@@ -78,7 +81,7 @@ router.get('/academy/:academyId', restrictTo('super_admin', 'supervisor', 'acade
 router.get('/:id', getSubscriptionById);
 
 // POST /subscriptions
-router.post('/', canManageSubscriptions, createValidators, validate, createSubscription);
+router.post('/', canCreateSubscriptions, createValidators, validate, createSubscription);
 
 // PATCH /subscriptions/:id/notes
 router.patch('/:id/notes', canManageSubscriptions, notesValidators, validate, updateSubscriptionNotes);

@@ -117,16 +117,16 @@ router.put(
 // PATCH /players/:id/change-group
 router.patch(
   '/:id/change-group',
-  restrictTo('super_admin', 'academy_admin', 'supervisor'),
+  restrictTo('super_admin', 'academy_admin', 'supervisor', 'admin'),
   changeGroupValidators,
   validate,
   changeGroup
 );
 
 // DELETE /players/:id
-router.delete('/:id', restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'), deletePlayer);
+router.delete('/:id', restrictTo('super_admin', 'supervisor', 'academy_admin'), deletePlayer);
 
 // DELETE /players/:id/image
-router.delete('/:id/image', restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'), deletePlayerImage);
+router.delete('/:id/image', restrictTo('super_admin', 'supervisor', 'academy_admin'), deletePlayerImage);
 
 module.exports = router;

@@ -42,9 +42,9 @@ const getPlayers = async (req, res, next) => {
     filter.isActive = true;
   }
 
-  // Academy scope — كل مستخدم غير super_admin/security مُقيَّد حتمياً بأكاديميته.
-  // super_admin و security فقط يمرّران academyId صراحةً. (يشمل دور admin + academy_admin.)
-  if (req.user.role === 'super_admin' || req.user.role === 'security') {
+  // Academy scope — كل مستخدم غير super_admin/security/admin مُقيَّد حتمياً بأكاديميته.
+  // super_admin و security و admin (صلاحية محدودة، عامل عبر كل الأكاديميات) يمرّرون academyId صراحةً.
+  if (req.user.role === 'super_admin' || req.user.role === 'security' || req.user.role === 'admin') {
     if (!req.query.academyId) {
       return next(new AppError('معرّف الأكاديمية مطلوب', 400));
     }
@@ -127,7 +127,7 @@ const searchPlayers = async (req, res, next) => {
     ],
   };
 
-  if (req.user.role === 'super_admin' || req.user.role === 'security') {
+  if (req.user.role === 'super_admin' || req.user.role === 'security' || req.user.role === 'admin') {
     if (!req.query.academyId) {
       return next(new AppError('معرّف الأكاديمية مطلوب للبحث', 400));
     }
@@ -146,7 +146,7 @@ const getPlayerById = async (req, res, next) => {
   const player = await Player.findById(req.params.id);
   if (!player) return next(new AppError('اللاعب غير موجود', 404));
 
-  if (req.user.role !== 'super_admin' && req.user.role !== 'security' &&
+  if (req.user.role !== 'super_admin' && req.user.role !== 'security' && req.user.role !== 'admin' &&
       player.academyId.toString() !== req.user.academyId?.toString()) {
     return next(new AppError('ليس لديك صلاحية للوصول إلى هذا اللاعب', 403));
   }
@@ -156,9 +156,9 @@ const getPlayerById = async (req, res, next) => {
 
 // ─── POST /players ───────────────────────────────────────────────────────────
 const createPlayer = async (req, res, next) => {
-  // Determine academyId — super_admin يحدّدها، غيره مُقيَّد بأكاديميته.
+  // Determine academyId — super_admin/admin يحدّدانها، غيرهما مُقيَّد بأكاديميته.
   let academyId;
-  if (req.user.role === 'super_admin') {
+  if (req.user.role === 'super_admin' || req.user.role === 'admin') {
     academyId = req.body.academyId;
     if (!academyId) return next(new AppError('معرّف الأكاديمية مطلوب', 400));
   } else {
@@ -246,7 +246,7 @@ const updatePlayer = async (req, res, next) => {
   const player = await Player.findById(req.params.id).select('+image_public_id');
   if (!player) return next(new AppError('اللاعب غير موجود', 404));
 
-  if (req.user.role !== 'super_admin' &&
+  if (req.user.role !== 'super_admin' && req.user.role !== 'admin' &&
       player.academyId.toString() !== req.user.academyId?.toString()) {
     return next(new AppError('ليس لديك صلاحية لتعديل هذا اللاعب', 403));
   }
@@ -337,7 +337,7 @@ const changeGroup = async (req, res, next) => {
   const player = await Player.findById(req.params.id);
   if (!player) return next(new AppError('اللاعب غير موجود', 404));
 
-  if (req.user.role !== 'super_admin' &&
+  if (req.user.role !== 'super_admin' && req.user.role !== 'admin' &&
       player.academyId.toString() !== req.user.academyId?.toString()) {
     return next(new AppError('ليس لديك صلاحية لتعديل هذا اللاعب', 403));
   }
