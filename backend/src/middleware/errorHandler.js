@@ -40,17 +40,6 @@ const errorHandler = (err, req, res, next) => {
     logger.error(`${statusCode} - ${message} - ${req.originalUrl}`, { stack: err.stack });
   }
 
-  // تشخيصي فقط — تفاصيل كاملة لكل طلب فاشل (URL/method/duration/exception
-  // type/status/body) لتتبّع سبب انقطاعات "انتهت مهلة اتصالك" المتقطعة.
-  const durationMs = req._startAtMs ? Date.now() - req._startAtMs : null;
-  logger.error(
-    `[REQUEST_FAILURE] method=${req.method} url=${req.originalUrl} ` +
-      `statusCode=${statusCode} durationMs=${durationMs ?? 'unknown'} ` +
-      `exceptionType=${err.name || err.constructor?.name || 'Error'} ` +
-      `dbReadyState=${require('mongoose').connection.readyState} ` +
-      `responseBody=${message}`
-  );
-
   return sendError(res, { message, statusCode });
 };
 

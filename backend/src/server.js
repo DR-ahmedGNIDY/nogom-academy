@@ -41,12 +41,6 @@ app.set('trust proxy', 1);
 // never let a connection failure crash the process — see config/database.js.
 connectDB().catch(() => {});
 
-// تشخيصي فقط — يسجّل وقت بداية كل طلب لحساب المدة عند الفشل (انظر errorHandler.js).
-app.use((req, res, next) => {
-  req._startAtMs = Date.now();
-  next();
-});
-
 app.use(helmet());
 
 // Origins allowed to call this API from a browser (mobile apps via Dio don't
