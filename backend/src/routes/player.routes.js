@@ -95,9 +95,10 @@ router.get('/search', searchPlayers);
 router.get('/:id', getPlayerById);
 
 // POST /players
+// coach يُنشئ لاعبين في أكاديميته فقط — الـ academyId يُفرض من req.user في الـ controller.
 router.post(
   '/',
-  restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'),
+  restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin', 'coach'),
   uploadPlayerImage.single('image'),
   createValidators,
   validate,
@@ -107,7 +108,7 @@ router.post(
 // PUT  /players/:id
 router.put(
   '/:id',
-  restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'),
+  restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin', 'coach'),
   uploadPlayerImage.single('image'),
   updateValidators,
   validate,
@@ -117,7 +118,7 @@ router.put(
 // PATCH /players/:id/change-group
 router.patch(
   '/:id/change-group',
-  restrictTo('super_admin', 'academy_admin', 'supervisor', 'admin'),
+  restrictTo('super_admin', 'academy_admin', 'supervisor', 'admin', 'coach'),
   changeGroupValidators,
   validate,
   changeGroup

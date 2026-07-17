@@ -26,6 +26,8 @@ const payrollRoutes = require('./routes/payroll.routes');
 const expenseRoutes = require('./routes/expense.routes');
 const matchRoutes = require('./routes/match.routes');
 const groupRoutes = require('./routes/group.routes');
+// سجل دخول اللاعبين (Entry Logs) — وحدة مستقلة تماماً عن حضور التدريب.
+const entryLogRoutes = require('./routes/entryLog.routes');
 
 const app = express();
 
@@ -38,6 +40,12 @@ app.set('trust proxy', 1);
 // Fire-and-forget: never block route registration (incl. CORS) on this, and
 // never let a connection failure crash the process — see config/database.js.
 connectDB().catch(() => {});
+
+// تشخيصي فقط — يسجّل وقت بداية كل طلب لحساب المدة عند الفشل (انظر errorHandler.js).
+app.use((req, res, next) => {
+  req._startAtMs = Date.now();
+  next();
+});
 
 app.use(helmet());
 
@@ -139,6 +147,7 @@ app.use('/api/v1/payroll', payrollRoutes);
 app.use('/api/v1/expenses', expenseRoutes);
 app.use('/api/v1/matches', matchRoutes);
 app.use('/api/v1/groups', groupRoutes);
+app.use('/api/v1/entry-logs', entryLogRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

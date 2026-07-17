@@ -21,8 +21,9 @@ router.use(protect);
 // مدير الأكاديمية (academy_admin) يرى الاشتراكات فقط (GET).
 const canManageSubscriptions = restrictTo('super_admin', 'supervisor');
 
-// إنشاء/تجديد الاشتراك: super_admin و supervisor و admin (صلاحية محدودة).
-const canCreateSubscriptions = restrictTo('super_admin', 'supervisor', 'admin');
+// إنشاء/تجديد الاشتراك: super_admin و supervisor و admin (صلاحية محدودة) و coach.
+// coach مُقيَّد بأكاديميته — الـ academyId يُفرض من req.user في الـ controller.
+const canCreateSubscriptions = restrictTo('super_admin', 'supervisor', 'admin', 'coach');
 
 // ─── Validators ──────────────────────────────────────────────────────────────
 

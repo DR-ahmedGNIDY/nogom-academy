@@ -33,7 +33,7 @@ const recordValidators = [
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
 // GET /attendance/report   ← MUST be before any '/:id' style route
-router.get('/report', restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin'), getAttendanceReport);
+router.get('/report', restrictTo('super_admin', 'supervisor', 'academy_admin', 'admin', 'coach'), getAttendanceReport);
 
 // GET /attendance
 router.get('/', getAttendance);

@@ -31,8 +31,8 @@ const createUser = async (req, res, next) => {
     return next(new AppError('البريد الإلكتروني مستخدم بالفعل', 409));
   }
 
-  // super_admin can create supervisor, academy_admin, admin or security; default to academy_admin
-  const allowedRoles = ['supervisor', 'academy_admin', 'admin', 'security'];
+  // super_admin can create supervisor, academy_admin, admin, security or coach; default to academy_admin
+  const allowedRoles = ['supervisor', 'academy_admin', 'admin', 'security', 'coach'];
   const newRole = allowedRoles.includes(requestedRole) ? requestedRole : 'academy_admin';
   logger.info(`createUser — requestedRole="${requestedRole}" → newRole="${newRole}"`);
 

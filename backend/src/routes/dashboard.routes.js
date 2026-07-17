@@ -13,10 +13,14 @@ const {
 } = require('../controllers/dashboard.controller');
 
 router.use(protect);
-router.use(restrictTo('super_admin', 'supervisor', 'academy_admin'));
+router.use(restrictTo('super_admin', 'supervisor', 'academy_admin', 'coach'));
+
+// coach محجوب عن الإيرادات — لا يملك صلاحية التقارير المالية. بقية المسارات
+// مسموحة له، وكلها محصورة تلقائياً بأكاديميته عبر buildAcademyMatch.
+const noFinance = restrictTo('super_admin', 'supervisor', 'academy_admin');
 
 router.get('/stats', getDashboardStats);
-router.get('/revenue-by-month', getRevenueByMonth);
+router.get('/revenue-by-month', noFinance, getRevenueByMonth);
 router.get('/subscriptions-by-type', getSubscriptionsByType);
 router.get('/players-by-birth-year', getPlayersByBirthYear);
 router.get('/evaluation-distribution', getEvaluationDistribution);

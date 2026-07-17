@@ -105,14 +105,18 @@ const getDashboardStats = async (req, res, next) => {
   const evalStats = evaluationStats[0] || { averageEvaluationScore: 0 };
   const groups = groupStats[0] || { totalGroups: 0, activeGroups: 0 };
 
+  // coach لا يملك صلاحية البيانات المالية — تُصفَّر الإيرادات قبل الإرسال
+  // (الشكل العام للاستجابة يبقى كما هو حتى لا يتغيّر عقد الواجهة).
+  const hideFinance = req.user.role === 'coach';
+
   sendSuccess(res, {
     data: {
       totalPlayers: players.totalPlayers || 0,
       activePlayers: players.activePlayers || 0,
       activeSubscriptions: activeSubsDoc.count || 0,
       expiredSubscriptions: expiredSubsDoc.count || 0,
-      totalRevenue: totalRevDoc.total || 0,
-      currentMonthRevenue: monthRevDoc.total || 0,
+      totalRevenue: hideFinance ? 0 : (totalRevDoc.total || 0),
+      currentMonthRevenue: hideFinance ? 0 : (monthRevDoc.total || 0),
       newSubscriptionsCount: newSubsDoc.count || 0,
       renewalsCount: renewalsDoc.count || 0,
       averageEvaluationScore: Math.round((evalStats.averageEvaluationScore || 0) * 100) / 100,
@@ -328,7 +332,8 @@ const getSportStats = async (req, res, next) => {
       totalPlayers: totalPlayers || 0,
       activeSubscriptions: extract(subs.active).count || 0,
       expiredSubscriptions: extract(subs.expired).count || 0,
-      revenue: extract(subs.revenue).total || 0,
+      // coach محجوب عن البيانات المالية — انظر getDashboardStats.
+      revenue: req.user.role === 'coach' ? 0 : (extract(subs.revenue).total || 0),
       recentPlayers,
     },
   });

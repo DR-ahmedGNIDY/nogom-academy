@@ -26,14 +26,15 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['super_admin', 'supervisor', 'academy_admin', 'admin', 'security'],
+      enum: ['super_admin', 'supervisor', 'academy_admin', 'admin', 'security', 'coach'],
       default: 'academy_admin',
     },
     academyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Academy',
       required: function () {
-        return ['supervisor', 'academy_admin', 'admin'].includes(this.role);
+        // coach مُقيَّد دائماً بأكاديمية واحدة — academyId إلزامي له.
+        return ['supervisor', 'academy_admin', 'admin', 'coach'].includes(this.role);
       },
     },
     isActive: {

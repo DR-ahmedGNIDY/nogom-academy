@@ -26,6 +26,8 @@ const activitySchema = new mongoose.Schema(
         'ADD_SUBSCRIPTION', 'RENEW_SUBSCRIPTION', 'DELETE_SUBSCRIPTION',
         'ADD_EVALUATION', 'UPDATE_EVALUATION', 'DELETE_EVALUATION',
         'RECORD_ATTENDANCE',
+        // سجل دخول اللاعب (Entry Logs) — مستقل عن RECORD_ATTENDANCE.
+        'RECORD_ENTRY_LOG',
         'ADD_USER', 'UPDATE_USER', 'DELETE_USER',
         'UPDATE_ACADEMY',
         'ADD_STAFF', 'UPDATE_STAFF', 'DELETE_STAFF',
@@ -38,7 +40,7 @@ const activitySchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: [
-        'PLAYER', 'SUBSCRIPTION', 'EVALUATION', 'ATTENDANCE', 'USER', 'ACADEMY',
+        'PLAYER', 'SUBSCRIPTION', 'EVALUATION', 'ATTENDANCE', 'ENTRY_LOG', 'USER', 'ACADEMY',
         'STAFF', 'STAFF_ATTENDANCE', 'PAYROLL', 'EXPENSE',
       ],
     },
